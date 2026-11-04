@@ -169,10 +169,18 @@ body.auto-collapsed .collapse-btn .collapse-icon {
   transform: rotate(180deg);
 }
 
+.live-dots {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 7px;
+  margin-left: 4px;
+}
+
 .live-dot {
   width: 7px;
   height: 7px;
-  margin-left: 4px;
+  flex: 0 0 7px;
   border-radius: 50%;
   background: var(--faint);
   box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.05);

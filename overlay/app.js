@@ -17,7 +17,7 @@
   const el = {
     app: $('#app'),
     dragbar: $('#dragbar'),
-    liveDot: $('#liveDot'),
+    liveDots: $('#liveDots'),
     balanceBtn: $('#balanceBtn'),
     balanceValue: $('#balanceValue'),
     pinBtn: $('#pinBtn'),
@@ -65,7 +65,8 @@
   let lastReplyKey = ''
   let lastMetaAt = 0
   let liveStatus = null
-  let activity = { running: false, approval: false, unreadIds: [] }
+  let activity = { running: false, approval: false, unreadIds: [], items: [] }
+  let lastDotsKey = ''
   let settingsOpen = false
   let autoCollapsed = false
   let hostPrefsLoaded = false
@@ -353,38 +354,42 @@
     el.prompt.classList.toggle('busy', !!status?.label)
   }
 
-  function updateLive(running, phase) {
-    const approval = phase === 'approval' || !!activity.approval
-    const active = !!running || !!activity.running
-    el.liveDot.hidden = false
-    el.liveDot.classList.toggle('approval', approval)
-    el.liveDot.classList.toggle('running', active && !approval)
-    if (active || approval) el.liveDot.classList.remove('done')
-    el.liveDot.title = approval
-      ? '有对话需要你选择或确认'
-      : active
-        ? 'DeepSeek Harness 正在运行'
-        : '空闲'
+  function renderStatusDots() {
+    if (!el.liveDots) return
+    let items = Array.isArray(activity.items) ? activity.items.slice() : []
+    if (items.length === 0 && currentId && snapshot?.unread) {
+      items = [{ id: currentId, state: 'done' }]
+    }
+    if (items.length === 0 && (snapshot?.running || snapshot?.status || activity.running || activity.approval)) {
+      const approval = snapshot?.status?.phase === 'approval' || activity.approval
+      items = [{ id: 'current', state: approval ? 'approval' : 'running' }]
+    }
+    if (items.length === 0) items = [{ id: 'idle', state: 'idle' }]
+    const key = items.map((item) => `${item.id}:${item.state}`).join('|')
+    if (key === lastDotsKey) return
+    lastDotsKey = key
+    const dots = items.map((item) => {
+      const dot = document.createElement('span')
+      dot.className = 'live-dot ' + item.state
+      dot.title = item.state === 'approval'
+        ? '有任务等待确认'
+        : item.state === 'running'
+          ? '任务运行中'
+          : item.state === 'done'
+            ? '任务已完成，打开对话后消失'
+            : '空闲'
+      return dot
+    })
+    el.liveDots.replaceChildren(...dots)
+    el.liveDots.title = items.length > 1 ? `${items.length} 个任务` : dots[0]?.title || '空闲'
+  }
+
+  function updateLive() {
+    renderStatusDots()
   }
 
   function updateUnread() {
-    const phase = snapshot?.status?.phase
-    const approval = phase === 'approval' || !!activity.approval
-    const running = !!snapshot?.running || !!activity.running
-    const otherUnread = (activity.unreadIds || []).some((id) => id !== currentId)
-    const currentUnread = !!snapshot?.unread && panel !== 'reply' && !!currentId
-    const done = !approval && !running && (otherUnread || currentUnread)
-    el.liveDot.hidden = false
-    el.liveDot.classList.toggle('approval', approval)
-    el.liveDot.classList.toggle('running', running && !approval)
-    el.liveDot.classList.toggle('done', done)
-    el.liveDot.title = approval
-      ? '有对话需要你选择或确认'
-      : running
-        ? 'DeepSeek Harness 正在运行'
-        : done
-          ? '任务已完成'
-          : '空闲'
+    renderStatusDots()
   }
 
   async function loadMeta() {
@@ -407,8 +412,9 @@
       running: !!data?.running,
       approval: !!data?.approval,
       unreadIds: Array.isArray(data?.unreadIds) ? data.unreadIds : [],
+      items: Array.isArray(data?.items) ? data.items : [],
     }
-    updateLive(!!snapshot?.running || !!snapshot?.status, snapshot?.status?.phase)
+    updateLive()
     updateUnread()
   }
 
