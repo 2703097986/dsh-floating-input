@@ -5,7 +5,7 @@
   const DEFAULT_PANEL_HEIGHT = { sessions: 330, reply: 430 }
   const MIN_PANEL_HEIGHT = 120
   const MAX_PANEL_HEIGHT = 820
-  const BASE_HEIGHT = 104
+  const BASE_HEIGHT = 98
   const AUTO_COLLAPSED_HEIGHT = 42
   const STORE_SESSION = 'dsh-floating-input:session'
   const STORE_COLLAPSED = 'dsh-floating-input:collapsed-workspaces'
@@ -24,8 +24,7 @@
     settingsBtn: $('#settingsBtn'),
     settingsOverlay: $('#settingsOverlay'),
     settingsClose: $('#settingsClose'),
-    collapseBtn: $('#collapseBtn'),
-    collapseLabel: $('#collapseLabel'),
+    brandBtn: $('#brandBtn'),
     dockGroup: $('#dockGroup'),
     hotkeyBtn: $('#hotkeyBtn'),
     hideHotkeyBtn: $('#hideHotkeyBtn'),
@@ -129,8 +128,7 @@
   function setAutoCollapsed(value) {
     autoCollapsed = !!value
     document.body.classList.toggle('auto-collapsed', autoCollapsed && !settingsOpen)
-    if (el.collapseLabel) el.collapseLabel.textContent = autoCollapsed ? '展开' : '收起'
-    if (el.collapseBtn) el.collapseBtn.title = autoCollapsed ? '展开输入框' : '收起快捷栏，只保留顶部栏'
+    if (el.brandBtn) el.brandBtn.title = autoCollapsed ? '展开输入框' : '收起快捷栏'
     updateResizeHandles()
     reportHeight()
   }
@@ -1078,14 +1076,14 @@
     el.dragbar.addEventListener('pointerdown', (event) => {
       if (event.button !== 0) return
       if (autoCollapsed) {
-        if (!event.target.closest('button')) {
+        if (!event.target.closest('button') && !event.target.closest('#brandBtn')) {
           event.preventDefault()
           event.stopPropagation()
           postNative({ type: 'expand' })
         }
         return
       }
-      if (event.target.closest('button')) return
+      if (event.target.closest('button, #brandBtn')) return
       if (event.target.closest('.resize-edge')) return
       postNative({ type: 'drag' })
     })
@@ -1241,7 +1239,12 @@
         applyPrefs()
       })
     }
-    el.collapseBtn?.addEventListener('click', () => {
+    el.brandBtn?.addEventListener('click', () => {
+      postNative({ type: autoCollapsed ? 'expand' : 'collapse' })
+    })
+    el.brandBtn?.addEventListener('keydown', (event) => {
+      if (event.key !== 'Enter' && event.key !== ' ') return
+      event.preventDefault()
       postNative({ type: autoCollapsed ? 'expand' : 'collapse' })
     })
     el.extraPrompt?.addEventListener('input', () => {

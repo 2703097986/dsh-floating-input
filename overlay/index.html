@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="color-scheme" content="dark">
   <title>DeepSeek Harness 悬浮输入</title>
-  <link rel="stylesheet" href="style.css?v=20261104-48">
+  <link rel="stylesheet" href="style.css?v=20261104-49">
 </head>
 <body>
   <svg class="symbols" aria-hidden="true">
@@ -31,7 +31,7 @@
 
   <div class="app" id="app">
     <header class="topbar" id="dragbar">
-      <div class="brand">
+      <div class="brand" id="brandBtn" role="button" tabindex="0" title="收起快捷栏">
         <img class="brand-logo" src="brand.svg" alt="deepseek HARNESS">
         <span class="live-dot" id="liveDot" title="空闲"></span>
       </div>
@@ -47,9 +47,6 @@
         </button>
         <button class="return-btn" id="returnBtn" type="button" title="呼出 / 最小化桌面版窗口">
           <svg><use href="#i-window"></use></svg>
-        </button>
-        <button class="collapse-btn" id="collapseBtn" type="button" title="收起快捷栏，只保留顶部栏">
-          <svg class="collapse-icon"><use href="#i-chevron-down"></use></svg><span id="collapseLabel">收起</span>
         </button>
       </div>
     </header>
@@ -143,6 +140,6 @@
   <div class="resize-corner tl" data-resize="left,top" aria-hidden="true" hidden></div>
   <div class="resize-corner tr" data-resize="right,top" aria-hidden="true" hidden></div>
 
-  <script src="app.js?v=20261104-49"></script>
+  <script src="app.js?v=20261104-50"></script>
 </body>
 </html>

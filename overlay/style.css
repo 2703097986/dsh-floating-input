@@ -106,6 +106,14 @@ svg {
   gap: 7px;
   min-width: 0;
   flex: 1 1 auto;
+  cursor: pointer;
+  user-select: none;
+}
+
+.brand:focus-visible {
+  outline: 1px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 5px;
 }
 
 .brand-logo {
@@ -749,12 +757,12 @@ body.expand-up.panel-open .resize-edge.right { top: 12px; bottom: 0; }
 
 .composer {
   order: 2;
-  height: 62px;
-  flex: 0 0 62px;
+  height: 56px;
+  flex: 0 0 56px;
   display: flex;
   align-items: center;
   gap: 5px;
-  padding: 9px 9px 9px 10px;
+  padding: 6px 9px 6px 10px;
   background: var(--surface);
   position: relative;
 }
