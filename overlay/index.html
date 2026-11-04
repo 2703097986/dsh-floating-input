@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="dark">
+  <title>DeepSeek Harness 悬浮输入</title>
+  <link rel="stylesheet" href="style.css?v=20261104-48">
+</head>
+<body>
+  <svg class="symbols" aria-hidden="true">
+    <symbol id="i-pin" viewBox="0 0 24 24">
+      <path d="M9 3.5h6l-.9 5.2 3.4 3.4v1.4h-5.6V21l-1 1-1-1v-7.5H4.5v-1.4l3.4-3.4L9 3.5Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+    </symbol>
+    <symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="m6.5 6.5 11 11m0-11-11 11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-chevron-down" viewBox="0 0 24 24"><path d="m7 9.5 5 5 5-5" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-chevron-up" viewBox="0 0 24 24"><path d="m7 14.5 5-5 5 5" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-chevron-left" viewBox="0 0 24 24"><path d="m14.5 7-5 5 5 5" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-resize-h" viewBox="0 0 24 24"><path d="M8 9l-4 3 4 3M16 9l4 3-4 3M4 12h16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-window" viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M3.5 9h17" fill="none" stroke="currentColor" stroke-width="1.7"/><circle cx="7" cy="6.8" r="0.9" fill="currentColor"/></symbol>
+<symbol id="i-chat" viewBox="0 0 24 24"><path d="M4.5 6.8A3.3 3.3 0 0 1 7.8 3.5h8.4a3.3 3.3 0 0 1 3.3 3.3v6.4a3.3 3.3 0 0 1-3.3 3.3H9.6l-4 3.2c-.5.4-1.1 0-1.1-.6V6.8Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></symbol>
+    <symbol id="i-send" viewBox="0 0 24 24"><path d="M12 19V5m0 0L6.5 10.5M12 5l5.5 5.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M19 8.5V4m0 4.5h-4.5M18.2 15.2A7 7 0 1 1 19 8.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-settings" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1.6"/>
+      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+  </svg>
+
+  <div class="app" id="app">
+    <header class="topbar" id="dragbar">
+      <div class="brand">
+        <img class="brand-logo" src="brand.svg" alt="deepseek HARNESS">
+        <span class="live-dot" id="liveDot" title="空闲"></span>
+      </div>
+      <div class="top-actions">
+        <button class="balance" id="balanceBtn" type="button" title="DeepSeek API 余额 · 点击查看用量">
+          <span class="balance-label">余额</span><b id="balanceValue">—</b>
+        </button>
+        <button class="icon-btn pin" id="pinBtn" type="button" title="置顶显示" aria-pressed="true">
+          <svg><use href="#i-pin"></use></svg>
+        </button>
+        <button class="icon-btn" id="settingsBtn" type="button" title="快捷栏设置">
+          <svg><use href="#i-settings"></use></svg>
+        </button>
+        <button class="return-btn" id="returnBtn" type="button" title="呼出 / 最小化桌面版窗口">
+          <svg><use href="#i-window"></use></svg>
+        </button>
+        <button class="collapse-btn" id="collapseBtn" type="button" title="收起快捷栏，只保留顶部栏">
+          <svg class="collapse-icon"><use href="#i-chevron-down"></use></svg><span id="collapseLabel">收起</span>
+        </button>
+      </div>
+    </header>
+
+    <section class="panel sessions-panel" id="sessionsPanel" hidden>
+      <div class="panel-head">
+        <div class="panel-title">对话</div>
+        <button class="new-btn" id="newBtn" type="button">
+          <svg><use href="#i-plus"></use></svg><span>新建对话</span>
+        </button>
+      </div>
+      <div class="session-list" id="sessionList"></div>
+    </section>
+
+    <section class="panel reply-panel" id="replyPanel" hidden>
+      <div class="transcript" id="transcript"></div>
+    </section>
+
+    <footer class="composer" id="composer">
+      <button class="session-btn" id="sessionBtn" type="button" aria-expanded="false" title="选择对话">
+        <svg class="session-ico"><use href="#i-chat"></use></svg>
+        <span class="session-name" id="sessionName">新对话</span>
+        <span class="session-color-bar" id="sessionColorBar"></span>
+        <svg class="chev"><use href="#i-chevron-down"></use></svg>
+      </button>
+      <div class="input-shell">
+        <textarea id="prompt" rows="1" maxlength="32000" placeholder="给 DeepSeek Harness 发消息…" spellcheck="false"></textarea>
+      </div>
+      <button class="icon-btn reply-toggle" id="replyBtn" type="button" title="展开回复" aria-expanded="false">
+        <svg><use href="#i-chevron-up"></use></svg>
+      </button>
+    </footer>
+
+    <div class="toast" id="toast" hidden role="status"></div>
+  </div>
+
+  <div class="context-menu" id="sessionMenu" role="menu" hidden></div>
+
+  <div class="settings-overlay" id="settingsOverlay" hidden>
+    <div class="settings-card" role="dialog" aria-modal="true" aria-label="快捷栏设置">
+      <div class="settings-head">
+        <span>快捷栏设置</span>
+        <button class="icon-btn small" id="settingsClose" type="button" title="关闭设置">
+          <svg><use href="#i-close"></use></svg>
+        </button>
+      </div>
+      <div class="settings-row">
+        <span class="settings-label">展开方向</span>
+        <div class="segmented" role="group" aria-label="展开方向">
+          <button type="button" data-expand="down">向下</button>
+          <button type="button" data-expand="up">向上</button>
+        </div>
+      </div>
+      <div class="settings-row">
+        <span class="settings-label">停靠位置</span>
+        <div class="segmented" id="dockGroup" role="group" aria-label="停靠位置">
+          <button type="button" data-dock="float">自由</button>
+          <button type="button" data-dock="center">任务栏居中</button>
+          <button type="button" data-dock="left">最左</button>
+        </div>
+      </div>
+      <div class="settings-row">
+        <span class="settings-label">唤起快捷键</span>
+        <button class="hotkey-btn" id="hotkeyBtn" type="button" title="点击后按下新的组合键">Ctrl+Alt+Space</button>
+      </div>
+      <div class="settings-row">
+        <span class="settings-label">收起快捷键</span>
+        <button class="hotkey-btn" id="hideHotkeyBtn" type="button" title="点击后按下新的组合键">Ctrl+Alt+H</button>
+      </div>
+      <div class="settings-row">
+        <span class="settings-label">字号</span>
+        <div class="segmented" role="group" aria-label="字号">
+          <button type="button" data-font="0.9">小</button>
+          <button type="button" data-font="1">标准</button>
+          <button type="button" data-font="1.1">大</button>
+          <button type="button" data-font="1.2">特大</button>
+        </div>
+      </div>
+      <label class="settings-field">
+        <span class="settings-label">附加提示词</span>
+        <textarea id="extraPrompt" rows="4"></textarea>
+      </label>
+    </div>
+  </div>
+
+  <div class="resize-edge left" data-resize="left" aria-hidden="true"></div>
+  <div class="resize-edge right" data-resize="right" aria-hidden="true"></div>
+  <div class="resize-edge bottom" data-resize="bottom" aria-hidden="true" hidden></div>
+  <div class="resize-corner bl" data-resize="left,bottom" aria-hidden="true" hidden></div>
+  <div class="resize-corner br" data-resize="right,bottom" aria-hidden="true" hidden></div>
+  <div class="resize-edge top" data-resize="top" aria-hidden="true" hidden></div>
+  <div class="resize-corner tl" data-resize="left,top" aria-hidden="true" hidden></div>
+  <div class="resize-corner tr" data-resize="right,top" aria-hidden="true" hidden></div>
+
+  <script src="app.js?v=20261104-49"></script>
+</body>
+</html>

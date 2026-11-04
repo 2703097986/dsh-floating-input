@@ -1,0 +1,10 @@
+# ============================================================================
+# dsh-floating-input — DSH bundle patch
+# ============================================================================
+# Installs the Host plugin that serves the companion window API and starts the
+# native always-on-top window together with the Desktop profile.
+# ============================================================================
+
+- insert:
+    - id: dsh-floating-input
+      name: dsh-floating-input
