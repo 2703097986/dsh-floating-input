@@ -1363,18 +1363,15 @@
     })
 
     let composing = false
-    let compositionEndedAt = 0
     el.prompt.addEventListener('compositionstart', () => {
       composing = true
     })
     el.prompt.addEventListener('compositionend', () => {
       composing = false
-      compositionEndedAt = performance.now()
     })
     el.prompt.addEventListener('keydown', (event) => {
       if (event.key !== 'Enter' || event.shiftKey) return
-      const composingNow = composing || event.isComposing || event.keyCode === 229
-      if (composingNow || performance.now() - compositionEndedAt < 80) return
+      if (composing || event.isComposing || event.keyCode === 229) return
       event.preventDefault()
       sendMessage()
     })
