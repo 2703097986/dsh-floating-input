@@ -1252,7 +1252,18 @@
       postNative({ type: 'return' })
     })
     el.balanceBtn.addEventListener('click', () => {
-      postNative({ type: 'open-recharge' })
+      const rect = el.balanceBtn.getBoundingClientRect()
+      postNative({
+        type: 'open-recharge',
+        anchor: {
+          left: rect.left,
+          top: rect.top,
+          width: rect.width,
+          height: rect.height,
+          viewportWidth: window.innerWidth,
+          viewportHeight: window.innerHeight,
+        },
+      })
     })
     el.pinBtn.addEventListener('click', () => {
       const next = el.pinBtn.getAttribute('aria-pressed') !== 'true'

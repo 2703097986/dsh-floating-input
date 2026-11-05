@@ -384,7 +384,8 @@ internal sealed class MainWindow : Window
                     PostHostState();
                     break;
                 case "open-recharge":
-                    Dispatcher.Invoke(OpenRechargeWindow);
+                    var rechargeAnchor = ReadRechargeAnchor(root);
+                    Dispatcher.Invoke(() => OpenRechargeWindow(rechargeAnchor));
                     break;
                 case "open-external":
                     if (root.TryGetProperty("url", out var url) && url.GetString() is { } external)
@@ -838,13 +839,34 @@ internal sealed class MainWindow : Window
         try { Application.Current.Shutdown(); } catch { }
     }
 
-    private void OpenRechargeWindow()
+    private Rect? ReadRechargeAnchor(JsonElement root)
+    {
+        if (!root.TryGetProperty("anchor", out var anchor) || anchor.ValueKind != JsonValueKind.Object) return null;
+        if (!anchor.TryGetProperty("left", out var leftValue) || !leftValue.TryGetDouble(out var left)) return null;
+        if (!anchor.TryGetProperty("top", out var topValue) || !topValue.TryGetDouble(out var top)) return null;
+        if (!anchor.TryGetProperty("width", out var widthValue) || !widthValue.TryGetDouble(out var width)) return null;
+        if (!anchor.TryGetProperty("height", out var heightValue) || !heightValue.TryGetDouble(out var height)) return null;
+        if (!anchor.TryGetProperty("viewportWidth", out var viewportWidthValue) || !viewportWidthValue.TryGetDouble(out var viewportWidth)) return null;
+        if (!anchor.TryGetProperty("viewportHeight", out var viewportHeightValue) || !viewportHeightValue.TryGetDouble(out var viewportHeight)) return null;
+        if (viewportWidth <= 0 || viewportHeight <= 0 || ActualWidth <= 0 || ActualHeight <= 0) return null;
+        var scaleX = ActualWidth / viewportWidth;
+        var scaleY = ActualHeight / viewportHeight;
+        return new Rect(
+            Left + left * scaleX,
+            Top + top * scaleY,
+            Math.Max(1, width * scaleX),
+            Math.Max(1, height * scaleY));
+    }
+
+    private void OpenRechargeWindow(Rect? anchor = null)
     {
         try
         {
             if (_webView.CoreWebView2 is null) return;
+            var workArea = CurrentWorkArea();
             if (_rechargeWindow is { IsLoaded: true })
             {
+                _rechargeWindow.PlaceAbove(anchor ?? Rect.Empty, workArea);
                 _rechargeWindow.Activate();
                 return;
             }
@@ -853,6 +875,7 @@ internal sealed class MainWindow : Window
                 Topmost = Topmost,
             };
             _rechargeWindow.Closed += (_, _) => _rechargeWindow = null;
+            _rechargeWindow.PlaceAbove(anchor ?? Rect.Empty, workArea);
             _rechargeWindow.Show();
             _rechargeWindow.Activate();
         }
