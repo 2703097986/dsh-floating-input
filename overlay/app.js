@@ -233,6 +233,7 @@
         refreshSnapshot({ force: true }).catch(reportError)
         markSeen()
       }
+      requestAnimationFrame(() => el.prompt.focus())
     }
   }
 
