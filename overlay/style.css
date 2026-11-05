@@ -162,6 +162,8 @@ svg {
 }
 
 .collapse-btn .collapse-icon {
+  width: 16px;
+  height: 16px;
   transition: transform 120ms ease;
 }
 

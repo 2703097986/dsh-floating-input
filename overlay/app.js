@@ -39,7 +39,7 @@
     hotkeyBtn: $('#hotkeyBtn'),
     hideHotkeyBtn: $('#hideHotkeyBtn'),
     extraPrompt: $('#extraPrompt'),
-    returnBtn: $('#returnBtn'),
+    collapseBtn: $('#collapseBtn'),
     sessionsPanel: $('#sessionsPanel'),
     sessionList: $('#sessionList'),
     newBtn: $('#newBtn'),
@@ -144,7 +144,7 @@
   function setAutoCollapsed(value) {
     autoCollapsed = !!value
     document.body.classList.toggle('auto-collapsed', autoCollapsed && !settingsOpen)
-    if (el.brandBtn) el.brandBtn.title = autoCollapsed ? '展开输入框' : '收起快捷栏'
+    if (el.collapseBtn) el.collapseBtn.title = autoCollapsed ? '展开输入框' : '收起快捷栏，只保留顶部栏'
     updateResizeHandles()
     reportHeight()
   }
@@ -1282,10 +1282,8 @@
       setPanel('reply')
     })
     el.newBtn.addEventListener('click', startNewFromSessions)
-    el.returnBtn?.addEventListener('pointerdown', (event) => {
-      if (event.button !== 0) return
-      event.preventDefault()
-      postNative({ type: 'return' })
+    el.collapseBtn?.addEventListener('click', () => {
+      postNative({ type: autoCollapsed ? 'expand' : 'collapse' })
     })
     el.balanceBtn.addEventListener('click', () => {
       const rect = el.balanceBtn.getBoundingClientRect()
@@ -1385,12 +1383,12 @@
       })
     }
     el.brandBtn?.addEventListener('click', () => {
-      postNative({ type: autoCollapsed ? 'expand' : 'collapse' })
+      postNative({ type: 'return' })
     })
     el.brandBtn?.addEventListener('keydown', (event) => {
       if (event.key !== 'Enter' && event.key !== ' ') return
       event.preventDefault()
-      postNative({ type: autoCollapsed ? 'expand' : 'collapse' })
+      postNative({ type: 'return' })
     })
     el.extraPrompt?.addEventListener('input', () => {
       prefs.extraPrompt = el.extraPrompt.value
