@@ -456,8 +456,17 @@
         : item.state === 'running'
           ? '任务运行中'
           : item.state === 'done'
-            ? '任务已完成，打开对话后消失'
+            ? '任务已完成，点击打开该对话'
             : '空闲'
+      if (item.state === 'done' && item.id && item.id !== 'current' && item.id !== 'idle') {
+        dot.classList.add('clickable')
+        dot.addEventListener('click', (event) => {
+          event.stopPropagation()
+          if (autoCollapsed) postNative({ type: 'expand' })
+          if (panel !== 'reply') setPanel('reply')
+          selectSession(item.id).then(() => markSeen()).catch(reportError)
+        })
+      }
       return dot
     })
     el.liveDots.replaceChildren(...dots)
