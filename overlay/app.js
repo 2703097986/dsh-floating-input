@@ -689,12 +689,16 @@
         main.append(title, metaLine)
 
         row.append(light, colorSquare, main)
-        row.addEventListener('click', () => {
+        const activateRow = () => {
           reopenReplyAfterPick = false
-          selectSession(session.id)
+          if (currentId !== session.id) selectSession(session.id)
           if (panel !== 'reply') setPanel('reply')
           el.prompt.focus()
+        }
+        row.addEventListener('pointerdown', (event) => {
+          if (event.button === 0) activateRow()
         })
+        row.addEventListener('click', activateRow)
         row.addEventListener('contextmenu', (event) => {
           event.preventDefault()
           event.stopPropagation()
