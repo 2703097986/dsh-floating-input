@@ -1,31 +1,22 @@
 using System;
 using System.Diagnostics;
-using System.Runtime.InteropServices;
 using System.Windows;
-using System.Windows.Interop;
-using System.Windows.Media;
 using Microsoft.Web.WebView2.Core;
 using Microsoft.Web.WebView2.Wpf;
-using MediaColor = System.Windows.Media.Color;
 
 namespace DshFloatingInput;
 
 /// <summary>
-/// A small dedicated WebView2 window for the official DeepSeek top-up page.
+/// A small pure WebView2 popup for the official DeepSeek top-up page.
 /// It intentionally does not build or handle payment orders itself: the
 /// official site owns the amount selection, payment method and QR code.
-/// Cookies are stored in the same WebView2 profile as the quick bar, so the
-/// user only signs in once.
+/// The window is borderless; clicking the balance button again closes it.
 /// </summary>
 internal sealed class RechargeWindow : Window
 {
     private const string RechargeUrl = "https://platform.deepseek.com/top_up";
     private const double PopupWidth = 360;
     private const double PopupHeight = 500;
-    private const int DwmwaUseImmersiveDarkMode = 20;
-    private const int DwmwaBorderColor = 34;
-    private const int DwmwaCaptionColor = 35;
-    private const int DwmwaTextColor = 36;
 
     private readonly CoreWebView2Environment _environment;
     private readonly WebView2 _webView = new();
@@ -37,14 +28,13 @@ internal sealed class RechargeWindow : Window
         Title = "DeepSeek 充值";
         Width = PopupWidth;
         Height = PopupHeight;
-        MinWidth = 320;
-        MinHeight = 380;
-        WindowStyle = WindowStyle.SingleBorderWindow;
-        ResizeMode = ResizeMode.CanResize;
+        MinWidth = 300;
+        MinHeight = 360;
+        WindowStyle = WindowStyle.None;
+        ResizeMode = ResizeMode.NoResize;
         WindowStartupLocation = WindowStartupLocation.Manual;
         ShowInTaskbar = false;
-        Background = new SolidColorBrush(MediaColor.FromRgb(15, 16, 18));
-        Foreground = new SolidColorBrush(MediaColor.FromRgb(232, 234, 237));
+        Background = System.Windows.Media.Brushes.Black;
         Content = _webView;
         Loaded += OnLoaded;
         Closed += (_, _) => _webView.Dispose();
@@ -52,8 +42,8 @@ internal sealed class RechargeWindow : Window
 
     public void PlaceAbove(Rect anchor, Rect workArea)
     {
-        var width = Math.Min(PopupWidth, Math.Max(360, workArea.Width - 24));
-        var height = Math.Min(PopupHeight, Math.Max(420, workArea.Height - 24));
+        var width = Math.Min(PopupWidth, Math.Max(300, workArea.Width - 24));
+        var height = Math.Min(PopupHeight, Math.Max(360, workArea.Height - 24));
         Width = width;
         Height = height;
 
@@ -64,24 +54,6 @@ internal sealed class RechargeWindow : Window
 
         Left = Math.Clamp(left, workArea.Left + 8, Math.Max(workArea.Left + 8, workArea.Right - width - 8));
         Top = Math.Clamp(top, workArea.Top + 8, Math.Max(workArea.Top + 8, workArea.Bottom - height - 8));
-    }
-
-    protected override void OnSourceInitialized(EventArgs e)
-    {
-        base.OnSourceInitialized(e);
-        try
-        {
-            var hwnd = new WindowInteropHelper(this).Handle;
-            var dark = 1;
-            DwmSetWindowAttribute(hwnd, DwmwaUseImmersiveDarkMode, ref dark, sizeof(int));
-            var caption = ColorRef(23, 24, 27);
-            DwmSetWindowAttribute(hwnd, DwmwaCaptionColor, ref caption, sizeof(int));
-            var text = ColorRef(232, 234, 237);
-            DwmSetWindowAttribute(hwnd, DwmwaTextColor, ref text, sizeof(int));
-            var border = ColorRef(42, 45, 49);
-            DwmSetWindowAttribute(hwnd, DwmwaBorderColor, ref border, sizeof(int));
-        }
-        catch { }
     }
 
     private async void OnLoaded(object sender, RoutedEventArgs e)
@@ -101,6 +73,11 @@ internal sealed class RechargeWindow : Window
                 args.Handled = true;
                 if (Uri.TryCreate(args.Uri, UriKind.Absolute, out var uri)) NavigateOrOpen(uri);
             };
+            core.NavigationCompleted += async (_, _) => await HideScrollbarsAndAddEscapeAsync();
+            core.WebMessageReceived += (_, args) =>
+            {
+                if (args.WebMessageAsJson.Contains("dsh-close-recharge", StringComparison.Ordinal)) Close();
+            };
             core.Navigate(RechargeUrl);
             _ready = true;
         }
@@ -113,6 +90,29 @@ internal sealed class RechargeWindow : Window
                 MessageBoxImage.Warning);
             Close();
         }
+    }
+
+    private async System.Threading.Tasks.Task HideScrollbarsAndAddEscapeAsync()
+    {
+        if (_webView.CoreWebView2 is null) return;
+        try
+        {
+            await _webView.CoreWebView2.ExecuteScriptAsync("""
+                (function () {
+                  if (document.getElementById('dsh-hide-scrollbars')) return;
+                  var style = document.createElement('style');
+                  style.id = 'dsh-hide-scrollbars';
+                  style.textContent = 'html,body,*{scrollbar-width:none!important;-ms-overflow-style:none!important}*::-webkit-scrollbar{width:0!important;height:0!important;display:none!important}';
+                  (document.head || document.documentElement).appendChild(style);
+                  document.addEventListener('keydown', function (event) {
+                    if (event.key === 'Escape' && window.chrome && window.chrome.webview) {
+                      window.chrome.webview.postMessage('dsh-close-recharge');
+                    }
+                  });
+                })();
+                """);
+        }
+        catch { }
     }
 
     private void NavigateOrOpen(Uri uri)
@@ -128,9 +128,4 @@ internal sealed class RechargeWindow : Window
         }
         catch { }
     }
-
-    private static int ColorRef(byte red, byte green, byte blue) => red | (green << 8) | (blue << 16);
-
-    [DllImport("dwmapi.dll")]
-    private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attribute, ref int value, int size);
 }
