@@ -6,3 +6,5 @@ helper-src/**/obj/
 *.suo
 .DS_Store
 Thumbs.db
+.cache/
+dist/
