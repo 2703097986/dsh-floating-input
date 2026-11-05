@@ -1185,13 +1185,13 @@ body.auto-collapsed .topbar { border-bottom: 0; }
 }
 
 @keyframes livePulseBlue {
-  0%, 100% { opacity: 0.56; transform: scale(0.9); box-shadow: 0 0 0 2px rgba(76, 155, 255, 0.18), 0 0 4px rgba(76, 155, 255, 0.28); }
-  50% { opacity: 1; transform: scale(1.18); box-shadow: 0 0 0 4px rgba(76, 155, 255, 0.3), 0 0 11px rgba(76, 155, 255, 0.72); }
+  0%, 100% { opacity: 0.62; transform: scale(0.94); box-shadow: 0 0 0 1.5px rgba(76, 155, 255, 0.16), 0 0 3px rgba(76, 155, 255, 0.24); }
+  50% { opacity: 1; transform: scale(1.11); box-shadow: 0 0 0 3px rgba(76, 155, 255, 0.26), 0 0 8px rgba(76, 155, 255, 0.62); }
 }
 
 @keyframes livePulseRed {
-  0%, 100% { opacity: 0.58; transform: scale(0.9); box-shadow: 0 0 0 2px rgba(255, 69, 58, 0.2), 0 0 4px rgba(255, 69, 58, 0.3); }
-  50% { opacity: 1; transform: scale(1.2); box-shadow: 0 0 0 5px rgba(255, 69, 58, 0.32), 0 0 13px rgba(255, 69, 58, 0.78); }
+  0%, 100% { opacity: 0.62; transform: scale(0.94); box-shadow: 0 0 0 1.5px rgba(255, 69, 58, 0.18), 0 0 3px rgba(255, 69, 58, 0.26); }
+  50% { opacity: 1; transform: scale(1.13); box-shadow: 0 0 0 4px rgba(255, 69, 58, 0.28), 0 0 9px rgba(255, 69, 58, 0.68); }
 }
 
 @keyframes unreadPulse {
