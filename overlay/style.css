@@ -278,9 +278,8 @@ body.expand-up.panel-open .resize-edge.right { top: 12px; bottom: 0; }
   width: 16px;
   height: 16px;
   flex: 0 0 16px;
-  color: #f0b35a;
+  color: #f5f6f7;
 }
-.balance.price-valley .balance-trend { color: #5bd6c4; }
 .balance b {
   font-variant-numeric: tabular-nums;
   font-weight: 720;
