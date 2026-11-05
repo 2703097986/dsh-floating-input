@@ -75,8 +75,10 @@
   let lastReplyKey = ''
   let lastMetaAt = 0
   let liveStatus = null
-  let activity = { running: false, approval: false, unreadIds: [], items: [] }
+  let activity = { running: false, approval: false, unreadIds: [], items: [], desktopSessionId: null, desktopSessionAt: 0 }
   let lastDotsKey = ''
+  let lastDesktopSyncAt = 0
+  let desktopSyncBusy = false
   let settingsOpen = false
   let autoCollapsed = false
   let hostPrefsLoaded = false
@@ -455,6 +457,21 @@
     syncSettingsUI()
   }
 
+  async function syncDesktopSession(sessionId, at) {
+    if (!sessionId || !at || at <= lastDesktopSyncAt || sending || desktopSyncBusy) return
+    lastDesktopSyncAt = at
+    if (sessionId === currentId) return
+    desktopSyncBusy = true
+    try {
+      await selectSession(sessionId)
+    } catch (error) {
+      lastDesktopSyncAt = 0
+      throw error
+    } finally {
+      desktopSyncBusy = false
+    }
+  }
+
   async function refreshActivity() {
     if (authFailed) return
     const data = await api('/activity')
@@ -463,7 +480,10 @@
       approval: !!data?.approval,
       unreadIds: Array.isArray(data?.unreadIds) ? data.unreadIds : [],
       items: Array.isArray(data?.items) ? data.items : [],
+      desktopSessionId: typeof data?.desktopSessionId === 'string' ? data.desktopSessionId : null,
+      desktopSessionAt: Number(data?.desktopSessionAt) || 0,
     }
+    syncDesktopSession(activity.desktopSessionId, activity.desktopSessionAt).catch(() => {})
     updateLive()
     updateUnread()
   }
