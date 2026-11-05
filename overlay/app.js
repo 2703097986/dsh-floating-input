@@ -13,13 +13,13 @@
   const STORE_PREFS = 'dsh-floating-input:prefs'
   const SETTINGS_HEIGHT = 450
   const CN_HOLIDAYS_2026 = [
-    ['2026-01-01', '2026-01-03'],
-    ['2026-02-15', '2026-02-23'],
-    ['2026-04-04', '2026-04-06'],
-    ['2026-05-01', '2026-05-05'],
-    ['2026-06-19', '2026-06-21'],
-    ['2026-09-25', '2026-09-27'],
-    ['2026-10-01', '2026-10-07'],
+    { start: '2026-01-01', end: '2026-01-03', name: '元旦' },
+    { start: '2026-02-15', end: '2026-02-23', name: '春节' },
+    { start: '2026-04-04', end: '2026-04-06', name: '清明节' },
+    { start: '2026-05-01', end: '2026-05-05', name: '劳动节' },
+    { start: '2026-06-19', end: '2026-06-21', name: '端午节' },
+    { start: '2026-09-25', end: '2026-09-27', name: '中秋节' },
+    { start: '2026-10-01', end: '2026-10-07', name: '国庆节' },
   ]
 
   const $ = (selector) => document.querySelector(selector)
@@ -312,8 +312,24 @@
 
   let pricePeak = null
 
+  function holidayFor(dateKey) {
+    return CN_HOLIDAYS_2026.find(({ start, end }) => dateKey >= start && dateKey <= end) || null
+  }
+
+  function beijingDateKey(date = new Date()) {
+    try {
+      const parts = new Intl.DateTimeFormat('en-US', {
+        timeZone: 'Asia/Shanghai', year: 'numeric', month: '2-digit', day: '2-digit',
+      }).formatToParts(date)
+      const get = (type) => parts.find((part) => part.type === type)?.value || ''
+      return `${get('year')}-${get('month')}-${get('day')}`
+    } catch {
+      return ''
+    }
+  }
+
   function inCnHoliday(dateKey) {
-    return CN_HOLIDAYS_2026.some(([start, end]) => dateKey >= start && dateKey <= end)
+    return !!holidayFor(dateKey)
   }
 
   function pricePeriod(date = new Date()) {
@@ -355,7 +371,11 @@
     el.balanceBtn.classList.toggle('price-valley', !pricePeak)
     const next = nextPriceTransition()
     const hours = next ? Math.round(((next - Date.now()) / 3_600_000) * 10) / 10 : null
-    el.balanceBtn.title = hours !== null ? `峰谷倒计时 ${Math.max(0.1, hours).toFixed(1)}h` : '峰谷倒计时 —'
+    const holiday = holidayFor(beijingDateKey())?.name || ''
+    const prefix = holiday ? `${holiday} ` : ''
+    el.balanceBtn.title = hours !== null
+      ? `${prefix}峰谷倒计时 ${Math.max(0.1, hours).toFixed(1)}h`
+      : `${prefix}峰谷倒计时 —`
   }
 
   function renderBalance() {
