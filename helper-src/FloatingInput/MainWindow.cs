@@ -866,8 +866,7 @@ internal sealed class MainWindow : Window
             var workArea = CurrentWorkArea();
             if (_rechargeWindow is { IsLoaded: true })
             {
-                _rechargeWindow.PlaceAbove(anchor ?? Rect.Empty, workArea);
-                _rechargeWindow.Activate();
+                _rechargeWindow.Close();
                 return;
             }
             _rechargeWindow = new RechargeWindow(_webView.CoreWebView2.Environment)

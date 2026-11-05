@@ -20,8 +20,8 @@ namespace DshFloatingInput;
 internal sealed class RechargeWindow : Window
 {
     private const string RechargeUrl = "https://platform.deepseek.com/top_up";
-    private const double PopupWidth = 460;
-    private const double PopupHeight = 640;
+    private const double PopupWidth = 360;
+    private const double PopupHeight = 500;
     private const int DwmwaUseImmersiveDarkMode = 20;
     private const int DwmwaBorderColor = 34;
     private const int DwmwaCaptionColor = 35;
@@ -37,8 +37,8 @@ internal sealed class RechargeWindow : Window
         Title = "DeepSeek 充值";
         Width = PopupWidth;
         Height = PopupHeight;
-        MinWidth = 400;
-        MinHeight = 500;
+        MinWidth = 320;
+        MinHeight = 380;
         WindowStyle = WindowStyle.SingleBorderWindow;
         ResizeMode = ResizeMode.CanResize;
         WindowStartupLocation = WindowStartupLocation.Manual;
