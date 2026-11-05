@@ -668,8 +668,13 @@ body.expand-up.panel-open .resize-edge.right { top: 12px; bottom: 0; }
 .bubble p:last-child { margin-bottom: 0; }
 .bubble strong { font-weight: 700; }
 .bubble em { font-style: italic; }
-.bubble a { color: #e7e9ed; text-decoration: underline; text-underline-offset: 2px; }
-.bubble a:hover { color: #ffffff; }
+.bubble a,
+.bubble .local-link {
+  color: #6aa9ff;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.bubble a:hover { color: #8cbdff; }
 .bubble ul, .bubble ol { margin: 3px 0 6px; padding-left: 18px; }
 .bubble li { margin: 1px 0; }
 .bubble h1, .bubble h2, .bubble h3 {

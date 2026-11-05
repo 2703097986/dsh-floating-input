@@ -1109,6 +1109,7 @@
     html = html.replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>')
     html = html.replace(/(^|[^*])\*([^*\n]+)\*/g, '$1<em>$2</em>')
     html = html.replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g, '<a href="$2" target="_blank" rel="noreferrer">$1</a>')
+    html = html.replace(/\[([^\]]+)\]\(((?:[A-Za-z]:[\\/]|\/)[^)]+)\)/g, '<span class="local-link">$1</span>')
 
     const lines = html.split('\n')
     const output = []
