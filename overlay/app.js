@@ -460,7 +460,11 @@
             : '空闲'
       if (item.state === 'done' && item.id && item.id !== 'current' && item.id !== 'idle') {
         dot.classList.add('clickable')
+        dot.addEventListener('pointerdown', (event) => {
+          event.stopPropagation()
+        })
         dot.addEventListener('click', (event) => {
+          event.preventDefault()
           event.stopPropagation()
           if (autoCollapsed) postNative({ type: 'expand' })
           if (panel !== 'reply') setPanel('reply')
@@ -1482,7 +1486,8 @@
         applyPrefs()
       })
     }
-    el.brandBtn?.addEventListener('click', () => {
+    el.brandBtn?.addEventListener('click', (event) => {
+      if (event.target.closest?.('.live-dot')) return
       postNative({ type: 'return' })
     })
     el.brandBtn?.addEventListener('keydown', (event) => {
