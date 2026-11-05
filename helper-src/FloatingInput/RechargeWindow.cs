@@ -1,8 +1,12 @@
 using System;
 using System.Diagnostics;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Media;
+using System.Windows.Shell;
 using Microsoft.Web.WebView2.Core;
 using Microsoft.Web.WebView2.Wpf;
+using MediaColor = System.Windows.Media.Color;
 
 namespace DshFloatingInput;
 
@@ -34,23 +38,37 @@ internal sealed class RechargeWindow : Window
         ResizeMode = ResizeMode.NoResize;
         WindowStartupLocation = WindowStartupLocation.Manual;
         ShowInTaskbar = false;
-        Background = System.Windows.Media.Brushes.Black;
-        Content = _webView;
+        Background = new SolidColorBrush(MediaColor.FromRgb(15, 16, 18));
+        WindowChrome.SetWindowChrome(this, new WindowChrome
+        {
+            CaptionHeight = 0,
+            ResizeBorderThickness = new Thickness(0),
+            CornerRadius = new CornerRadius(10),
+            GlassFrameThickness = new Thickness(0),
+        });
+        Content = new Border
+        {
+            Background = new SolidColorBrush(MediaColor.FromRgb(15, 16, 18)),
+            BorderBrush = new SolidColorBrush(MediaColor.FromRgb(216, 219, 224)),
+            BorderThickness = new Thickness(1),
+            CornerRadius = new CornerRadius(10),
+            Padding = new Thickness(1),
+            Child = _webView,
+        };
         Loaded += OnLoaded;
         Closed += (_, _) => _webView.Dispose();
     }
 
-    public void PlaceAbove(Rect anchor, Rect workArea)
+    public void PlaceAboveQuickBar(Rect quickBar, Rect workArea)
     {
         var width = Math.Min(PopupWidth, Math.Max(300, workArea.Width - 24));
         var height = Math.Min(PopupHeight, Math.Max(360, workArea.Height - 24));
         Width = width;
         Height = height;
 
-        var center = anchor.IsEmpty ? workArea.Left + workArea.Width / 2 : anchor.Left + anchor.Width / 2;
-        var left = center - width / 2;
-        var top = anchor.IsEmpty ? workArea.Top + (workArea.Height - height) / 2 : anchor.Top - height - 8;
-        if (top < workArea.Top + 8) top = anchor.IsEmpty ? workArea.Top + 8 : anchor.Bottom + 8;
+        var left = quickBar.Right - width;
+        var top = quickBar.Top - height - 8;
+        if (top < workArea.Top + 8) top = quickBar.Bottom + 8;
 
         Left = Math.Clamp(left, workArea.Left + 8, Math.Max(workArea.Left + 8, workArea.Right - width - 8));
         Top = Math.Clamp(top, workArea.Top + 8, Math.Max(workArea.Top + 8, workArea.Bottom - height - 8));

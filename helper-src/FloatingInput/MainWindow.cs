@@ -108,8 +108,8 @@ internal sealed class MainWindow : Window
 
         Loaded += OnLoaded;
         SourceInitialized += OnSourceInitialized;
-        LocationChanged += (_, _) => ScheduleSave();
-        SizeChanged += (_, _) => ScheduleSave();
+        LocationChanged += (_, _) => { ScheduleSave(); RepositionRechargeWindow(); };
+        SizeChanged += (_, _) => { ScheduleSave(); RepositionRechargeWindow(); };
         Closing += OnClosing;
         Closed += OnClosed;
     }
@@ -384,8 +384,7 @@ internal sealed class MainWindow : Window
                     PostHostState();
                     break;
                 case "open-recharge":
-                    var rechargeAnchor = ReadRechargeAnchor(root);
-                    Dispatcher.Invoke(() => OpenRechargeWindow(rechargeAnchor));
+                    Dispatcher.Invoke(OpenRechargeWindow);
                     break;
                 case "open-external":
                     if (root.TryGetProperty("url", out var url) && url.GetString() is { } external)
@@ -839,26 +838,7 @@ internal sealed class MainWindow : Window
         try { Application.Current.Shutdown(); } catch { }
     }
 
-    private Rect? ReadRechargeAnchor(JsonElement root)
-    {
-        if (!root.TryGetProperty("anchor", out var anchor) || anchor.ValueKind != JsonValueKind.Object) return null;
-        if (!anchor.TryGetProperty("left", out var leftValue) || !leftValue.TryGetDouble(out var left)) return null;
-        if (!anchor.TryGetProperty("top", out var topValue) || !topValue.TryGetDouble(out var top)) return null;
-        if (!anchor.TryGetProperty("width", out var widthValue) || !widthValue.TryGetDouble(out var width)) return null;
-        if (!anchor.TryGetProperty("height", out var heightValue) || !heightValue.TryGetDouble(out var height)) return null;
-        if (!anchor.TryGetProperty("viewportWidth", out var viewportWidthValue) || !viewportWidthValue.TryGetDouble(out var viewportWidth)) return null;
-        if (!anchor.TryGetProperty("viewportHeight", out var viewportHeightValue) || !viewportHeightValue.TryGetDouble(out var viewportHeight)) return null;
-        if (viewportWidth <= 0 || viewportHeight <= 0 || ActualWidth <= 0 || ActualHeight <= 0) return null;
-        var scaleX = ActualWidth / viewportWidth;
-        var scaleY = ActualHeight / viewportHeight;
-        return new Rect(
-            Left + left * scaleX,
-            Top + top * scaleY,
-            Math.Max(1, width * scaleX),
-            Math.Max(1, height * scaleY));
-    }
-
-    private void OpenRechargeWindow(Rect? anchor = null)
+    private void OpenRechargeWindow()
     {
         try
         {
@@ -874,7 +854,7 @@ internal sealed class MainWindow : Window
                 Topmost = Topmost,
             };
             _rechargeWindow.Closed += (_, _) => _rechargeWindow = null;
-            _rechargeWindow.PlaceAbove(anchor ?? Rect.Empty, workArea);
+            _rechargeWindow.PlaceAboveQuickBar(new Rect(Left, Top, ActualWidth, ActualHeight), workArea);
             _rechargeWindow.Show();
             _rechargeWindow.Activate();
         }
@@ -882,6 +862,12 @@ internal sealed class MainWindow : Window
         {
             Log("open recharge failed: " + error);
         }
+    }
+
+    private void RepositionRechargeWindow()
+    {
+        if (_rechargeWindow is not { IsLoaded: true }) return;
+        _rechargeWindow.PlaceAboveQuickBar(new Rect(Left, Top, ActualWidth, ActualHeight), CurrentWorkArea());
     }
 
     private void OpenExternal(string url)
