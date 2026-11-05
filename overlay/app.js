@@ -1528,6 +1528,11 @@
         setAutoCollapsed(!!message.collapsed)
       } else if (message.type === 'collapsed') {
         setAutoCollapsed(!!message.value)
+      } else if (message.type === 'hotkey-wake') {
+        if (!settingsOpen) {
+          setPanel('reply')
+          el.prompt.focus()
+        }
       } else if (message.type === 'focus') {
         el.prompt.focus()
       }

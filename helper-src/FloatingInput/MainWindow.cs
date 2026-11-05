@@ -711,11 +711,28 @@ internal sealed class MainWindow : Window
         }
     }
 
+    private void PostHotkeyWake()
+    {
+        try
+        {
+            _webView.CoreWebView2?.PostWebMessageAsJson("{\"type\":\"hotkey-wake\"}");
+        }
+        catch
+        {
+            // The page may be navigating.
+        }
+    }
+
     private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
     {
         if (msg == Win32.WM_HOTKEY && wParam.ToInt32() == HotkeyId)
         {
-            Dispatcher.BeginInvoke(new Action(ShowWidget), DispatcherPriority.Normal);
+            var togglePanel = IsVisible && !_collapsed;
+            Dispatcher.BeginInvoke(new Action(() =>
+            {
+                ShowWidget();
+                if (togglePanel) PostHotkeyWake();
+            }), DispatcherPriority.Normal);
             handled = true;
         }
         else if (msg == Win32.WM_HOTKEY && wParam.ToInt32() == HideHotkeyId)
