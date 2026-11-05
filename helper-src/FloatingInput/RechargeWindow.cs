@@ -4,6 +4,7 @@ using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Threading;
 using Microsoft.Web.WebView2.Core;
 using Microsoft.Web.WebView2.Wpf;
 using MediaColor = System.Windows.Media.Color;
@@ -24,7 +25,9 @@ internal sealed class RechargeWindow : Window
 
     private readonly CoreWebView2Environment _environment;
     private readonly WebView2 _webView = new();
+    private readonly DispatcherTimer _revealTimer;
     private bool _ready;
+    private bool _revealed;
 
     public RechargeWindow(CoreWebView2Environment environment)
     {
@@ -49,8 +52,14 @@ internal sealed class RechargeWindow : Window
             Padding = new Thickness(1),
             Child = _webView,
         };
+        _revealTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(2200) };
+        _revealTimer.Tick += (_, _) => Reveal();
         Loaded += OnLoaded;
-        Closed += (_, _) => _webView.Dispose();
+        Closed += (_, _) =>
+        {
+            _revealTimer.Stop();
+            _webView.Dispose();
+        };
     }
 
     public void PlaceAboveQuickBar(Rect quickBar, Rect workArea)
@@ -92,6 +101,7 @@ internal sealed class RechargeWindow : Window
         {
             await _webView.EnsureCoreWebView2Async(_environment);
             var core = _webView.CoreWebView2;
+            _webView.Visibility = Visibility.Hidden;
             core.Settings.AreDefaultContextMenusEnabled = false;
             core.Settings.IsStatusBarEnabled = false;
             core.Settings.AreDevToolsEnabled = false;
@@ -102,12 +112,17 @@ internal sealed class RechargeWindow : Window
                 args.Handled = true;
                 if (Uri.TryCreate(args.Uri, UriKind.Absolute, out var uri)) NavigateOrOpen(uri);
             };
-            core.NavigationCompleted += async (_, _) => await HideScrollbarsAndAddEscapeAsync();
+            core.NavigationCompleted += async (_, args) =>
+            {
+                if (args.IsSuccess) Reveal();
+                await HideScrollbarsAndAddEscapeAsync();
+            };
             core.WebMessageReceived += (_, args) =>
             {
                 if (args.WebMessageAsJson.Contains("dsh-close-recharge", StringComparison.Ordinal)) Close();
             };
             core.Navigate(RechargeUrl);
+            _revealTimer.Start();
             _ready = true;
         }
         catch (Exception error)
@@ -119,6 +134,18 @@ internal sealed class RechargeWindow : Window
                 MessageBoxImage.Warning);
             Close();
         }
+    }
+
+    private void Reveal()
+    {
+        if (_revealed) return;
+        _revealed = true;
+        _revealTimer.Stop();
+        try
+        {
+            _webView.Visibility = Visibility.Visible;
+        }
+        catch { }
     }
 
     private async System.Threading.Tasks.Task HideScrollbarsAndAddEscapeAsync()
