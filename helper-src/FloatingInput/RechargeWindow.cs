@@ -40,7 +40,6 @@ internal sealed class RechargeWindow : Window
         ShowInTaskbar = false;
         Background = new SolidColorBrush(MediaColor.FromRgb(15, 16, 18));
         _webView.DefaultBackgroundColor = System.Drawing.Color.FromArgb(255, 15, 16, 18);
-        _webView.Visibility = Visibility.Hidden;
         Content = new Border
         {
             Background = new SolidColorBrush(MediaColor.FromRgb(15, 16, 18)),
@@ -103,11 +102,7 @@ internal sealed class RechargeWindow : Window
                 args.Handled = true;
                 if (Uri.TryCreate(args.Uri, UriKind.Absolute, out var uri)) NavigateOrOpen(uri);
             };
-            core.NavigationCompleted += async (_, args) =>
-            {
-                if (args.IsSuccess) _webView.Visibility = Visibility.Visible;
-                await HideScrollbarsAndAddEscapeAsync();
-            };
+            core.NavigationCompleted += async (_, _) => await HideScrollbarsAndAddEscapeAsync();
             core.WebMessageReceived += (_, args) =>
             {
                 if (args.WebMessageAsJson.Contains("dsh-close-recharge", StringComparison.Ordinal)) Close();
