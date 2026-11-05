@@ -172,9 +172,9 @@ body.auto-collapsed .collapse-btn .collapse-icon {
 .live-dots {
   display: flex;
   align-items: center;
-  gap: 9px;
+  gap: 11px;
   min-height: 7px;
-  margin-left: 6px;
+  margin-left: 2px;
 }
 
 .live-dot {
