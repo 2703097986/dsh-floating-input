@@ -79,6 +79,9 @@
   let lastDotsKey = ''
   let lastDesktopSyncAt = 0
   let desktopSyncBusy = false
+  let completionAudio = null
+  let completionSoundAt = 0
+  let activityPrimed = false
   let settingsOpen = false
   let autoCollapsed = false
   let hostPrefsLoaded = false
@@ -495,16 +498,40 @@
     }
   }
 
+  function playCompletionSound() {
+    const now = performance.now()
+    if (now - completionSoundAt < 500) return
+    completionSoundAt = now
+    try {
+      if (!completionAudio) {
+        completionAudio = new Audio('sounds/task-end.wav')
+        completionAudio.preload = 'auto'
+        completionAudio.volume = 0.9
+      }
+      completionAudio.currentTime = 0
+      const played = completionAudio.play()
+      if (played?.catch) played.catch(() => {})
+    } catch {}
+  }
+
   async function refreshActivity() {
     if (authFailed) return
+    const previousItems = Array.isArray(activity.items) ? activity.items : []
     const data = await api('/activity')
+    const items = Array.isArray(data?.items) ? data.items : []
     activity = {
       running: !!data?.running,
       approval: !!data?.approval,
       unreadIds: Array.isArray(data?.unreadIds) ? data.unreadIds : [],
-      items: Array.isArray(data?.items) ? data.items : [],
+      items,
       desktopSessionId: typeof data?.desktopSessionId === 'string' ? data.desktopSessionId : null,
       desktopSessionAt: Number(data?.desktopSessionAt) || 0,
+    }
+    if (activityPrimed) {
+      const previousActive = new Set(previousItems.filter((item) => item.state === 'running' || item.state === 'approval').map((item) => item.id))
+      if (items.some((item) => item.state === 'done' && previousActive.has(item.id))) playCompletionSound()
+    } else {
+      activityPrimed = true
     }
     syncDesktopSession(activity.desktopSessionId, activity.desktopSessionAt).catch(() => {})
     updateLive()
@@ -648,11 +675,9 @@
 
         row.append(light, colorSquare, main)
         row.addEventListener('click', () => {
-          const restoreReply = reopenReplyAfterPick
           reopenReplyAfterPick = false
           selectSession(session.id)
-          if (restoreReply) setPanel('reply')
-          else setPanel('none')
+          if (panel !== 'reply') setPanel('reply')
           el.prompt.focus()
         })
         row.addEventListener('contextmenu', (event) => {
