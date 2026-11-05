@@ -651,9 +651,11 @@ body.expand-up.panel-open .resize-edge.right { top: 12px; bottom: 0; }
 .msg.assistant .bubble {
   color: var(--text);
   max-width: 100%;
-  padding: 0;
+  padding: 9px 0;
   background: transparent;
   border: 0;
+  border-top: 1px solid var(--border-strong);
+  border-bottom: 1px solid var(--border-strong);
   border-radius: 0;
   white-space: normal;
 }
