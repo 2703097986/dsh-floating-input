@@ -1,16 +1,12 @@
 using System;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Media;
-using System.Windows.Shell;
 using Microsoft.Web.WebView2.Core;
 using Microsoft.Web.WebView2.Wpf;
-using MediaBrushes = System.Windows.Media.Brushes;
 using MediaColor = System.Windows.Media.Color;
-using WpfCursors = System.Windows.Input.Cursors;
-using WpfHorizontalAlignment = System.Windows.HorizontalAlignment;
 
 namespace DshFloatingInput;
 
@@ -24,8 +20,12 @@ namespace DshFloatingInput;
 internal sealed class RechargeWindow : Window
 {
     private const string RechargeUrl = "https://platform.deepseek.com/top_up";
-    private const double PopupWidth = 540;
-    private const double PopupHeight = 760;
+    private const double PopupWidth = 460;
+    private const double PopupHeight = 640;
+    private const int DwmwaUseImmersiveDarkMode = 20;
+    private const int DwmwaBorderColor = 34;
+    private const int DwmwaCaptionColor = 35;
+    private const int DwmwaTextColor = 36;
 
     private readonly CoreWebView2Environment _environment;
     private readonly WebView2 _webView = new();
@@ -37,24 +37,15 @@ internal sealed class RechargeWindow : Window
         Title = "DeepSeek 充值";
         Width = PopupWidth;
         Height = PopupHeight;
-        MinWidth = 440;
-        MinHeight = 560;
-        WindowStyle = WindowStyle.None;
+        MinWidth = 400;
+        MinHeight = 500;
+        WindowStyle = WindowStyle.SingleBorderWindow;
         ResizeMode = ResizeMode.CanResize;
         WindowStartupLocation = WindowStartupLocation.Manual;
         ShowInTaskbar = false;
         Background = new SolidColorBrush(MediaColor.FromRgb(15, 16, 18));
         Foreground = new SolidColorBrush(MediaColor.FromRgb(232, 234, 237));
-
-        WindowChrome.SetWindowChrome(this, new WindowChrome
-        {
-            CaptionHeight = 0,
-            ResizeBorderThickness = new Thickness(6),
-            CornerRadius = new CornerRadius(10),
-            GlassFrameThickness = new Thickness(0),
-        });
-
-        Content = BuildLayout();
+        Content = _webView;
         Loaded += OnLoaded;
         Closed += (_, _) => _webView.Dispose();
     }
@@ -75,71 +66,22 @@ internal sealed class RechargeWindow : Window
         Top = Math.Clamp(top, workArea.Top + 8, Math.Max(workArea.Top + 8, workArea.Bottom - height - 8));
     }
 
-    private UIElement BuildLayout()
+    protected override void OnSourceInitialized(EventArgs e)
     {
-        var header = new Border
+        base.OnSourceInitialized(e);
+        try
         {
-            Background = new SolidColorBrush(MediaColor.FromRgb(23, 24, 27)),
-            BorderBrush = new SolidColorBrush(MediaColor.FromRgb(42, 45, 49)),
-            BorderThickness = new Thickness(0, 0, 0, 1),
-            Padding = new Thickness(14, 0, 8, 0),
-            Height = 38,
-        };
-        var headerGrid = new Grid();
-        headerGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-        headerGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-
-        var title = new TextBlock
-        {
-            Text = "DeepSeek 充值",
-            VerticalAlignment = VerticalAlignment.Center,
-            FontSize = 12.5,
-            FontWeight = FontWeights.SemiBold,
-            Foreground = new SolidColorBrush(MediaColor.FromRgb(232, 234, 237)),
-        };
-        Grid.SetColumn(title, 0);
-        headerGrid.Children.Add(title);
-
-        var close = new Border
-        {
-            Width = 32,
-            Height = 26,
-            Background = MediaBrushes.Transparent,
-            CornerRadius = new CornerRadius(6),
-            Cursor = WpfCursors.Hand,
-            Child = new TextBlock
-            {
-                Text = "×",
-                FontSize = 18,
-                HorizontalAlignment = WpfHorizontalAlignment.Center,
-                VerticalAlignment = VerticalAlignment.Center,
-                Foreground = new SolidColorBrush(MediaColor.FromRgb(170, 176, 185)),
-            },
-        };
-        close.MouseLeftButtonUp += (_, _) => Close();
-        Grid.SetColumn(close, 1);
-        headerGrid.Children.Add(close);
-        header.Child = headerGrid;
-        header.MouseLeftButtonDown += (_, eventArgs) =>
-        {
-            if (eventArgs.ButtonState == MouseButtonState.Pressed) DragMove();
-        };
-
-        var grid = new Grid();
-        grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-        grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
-        Grid.SetRow(header, 0);
-        grid.Children.Add(header);
-        Grid.SetRow(_webView, 1);
-        grid.Children.Add(_webView);
-
-        return new Border
-        {
-            BorderBrush = new SolidColorBrush(MediaColor.FromRgb(42, 45, 49)),
-            BorderThickness = new Thickness(1),
-            Background = new SolidColorBrush(MediaColor.FromRgb(15, 16, 18)),
-            Child = grid,
-        };
+            var hwnd = new WindowInteropHelper(this).Handle;
+            var dark = 1;
+            DwmSetWindowAttribute(hwnd, DwmwaUseImmersiveDarkMode, ref dark, sizeof(int));
+            var caption = ColorRef(23, 24, 27);
+            DwmSetWindowAttribute(hwnd, DwmwaCaptionColor, ref caption, sizeof(int));
+            var text = ColorRef(232, 234, 237);
+            DwmSetWindowAttribute(hwnd, DwmwaTextColor, ref text, sizeof(int));
+            var border = ColorRef(42, 45, 49);
+            DwmSetWindowAttribute(hwnd, DwmwaBorderColor, ref border, sizeof(int));
+        }
+        catch { }
     }
 
     private async void OnLoaded(object sender, RoutedEventArgs e)
@@ -186,4 +128,9 @@ internal sealed class RechargeWindow : Window
         }
         catch { }
     }
+
+    private static int ColorRef(byte red, byte green, byte blue) => red | (green << 8) | (blue << 16);
+
+    [DllImport("dwmapi.dll")]
+    private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attribute, ref int value, int size);
 }
