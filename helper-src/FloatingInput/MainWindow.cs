@@ -433,14 +433,21 @@ internal sealed class MainWindow : Window
         {
             if (Math.Abs(newWidth - Width) > 0.5) Width = newWidth;
             Height = newHeight;
-            var minTop = area.Top + 8;
-            var maxTop = area.Bottom - newHeight - 8;
-            if (maxTop < minTop) maxTop = minTop;
-            Top = Math.Clamp(top, minTop, maxTop);
-            var minLeft = area.Left + 8;
-            var maxLeft = area.Right - newWidth - 8;
-            if (maxLeft < minLeft) maxLeft = minLeft;
-            Left = Math.Clamp(Left, minLeft, maxLeft);
+            if (_dock != "float")
+            {
+                var minTop = area.Top + 8;
+                var maxTop = area.Bottom - newHeight - 8;
+                if (maxTop < minTop) maxTop = minTop;
+                Top = Math.Clamp(top, minTop, maxTop);
+                var minLeft = area.Left + 8;
+                var maxLeft = area.Right - newWidth - 8;
+                if (maxLeft < minLeft) maxLeft = minLeft;
+                Left = Math.Clamp(Left, minLeft, maxLeft);
+            }
+            else
+            {
+                Top = top;
+            }
         }
         finally
         {
@@ -473,12 +480,19 @@ internal sealed class MainWindow : Window
         try
         {
             Width = width;
-            var maxLeft = area.Right - width - 8;
-            if (maxLeft < area.Left + 8) maxLeft = area.Left + 8;
-            Left = Math.Clamp(left, area.Left + 8, maxLeft);
-            var maxTop = area.Bottom - Height - 8;
-            if (maxTop < area.Top + 8) maxTop = area.Top + 8;
-            Top = Math.Clamp(Top, area.Top + 8, maxTop);
+            if (_dock != "float")
+            {
+                var maxLeft = area.Right - width - 8;
+                if (maxLeft < area.Left + 8) maxLeft = area.Left + 8;
+                Left = Math.Clamp(left, area.Left + 8, maxLeft);
+                var maxTop = area.Bottom - Height - 8;
+                if (maxTop < area.Top + 8) maxTop = area.Top + 8;
+                Top = Math.Clamp(Top, area.Top + 8, maxTop);
+            }
+            else
+            {
+                Left = left;
+            }
         }
         finally
         {
@@ -786,20 +800,26 @@ internal sealed class MainWindow : Window
         var width = Math.Clamp(_settings.Width, MinWindowWidth, MaxWindowWidth);
         var left = _settings.Left;
         var top = _settings.Top;
+        if (_settings.ExpandUp && double.IsFinite(_settings.Bottom) && _settings.Bottom > _settings.Top)
+        {
+            // The saved top is the expanded panel's top; anchor the collapsed bar to its bottom edge.
+            top = _settings.Bottom - Height;
+        }
+        var virtualLeft = SystemParameters.VirtualScreenLeft;
+        var virtualTop = SystemParameters.VirtualScreenTop;
+        var virtualRight = virtualLeft + SystemParameters.VirtualScreenWidth;
+        var virtualBottom = virtualTop + SystemParameters.VirtualScreenHeight;
         var valid = _settings.Positioned && double.IsFinite(left) && double.IsFinite(top) &&
-                    left > area.Left - 4000 && top > area.Top - 4000 &&
-                    left < area.Right + 4000 && top < area.Bottom + 4000;
+                    left > virtualLeft - 100 && top > virtualTop - 100 &&
+                    left < virtualRight - 80 && top < virtualBottom - 80;
         if (!valid)
         {
             left = area.Right - width - 24;
             top = area.Top + 80;
         }
-        var maxLeft = area.Right - width - 8;
-        if (maxLeft < area.Left + 8) maxLeft = area.Left + 8;
-        var maxTop = area.Bottom - Height - 8;
-        if (maxTop < area.Top + 8) maxTop = area.Top + 8;
-        Left = Math.Clamp(left, area.Left + 8, maxLeft);
-        Top = Math.Clamp(top, area.Top + 8, maxTop);
+        // Restore the saved coordinates exactly; the window may be on a secondary monitor.
+        Left = left;
+        Top = top;
         _settings.Positioned = true;
     }
 
