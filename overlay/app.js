@@ -1487,7 +1487,7 @@
       })
     }
     el.brandBtn?.addEventListener('click', (event) => {
-      if (event.target.closest?.('.live-dot')) return
+      if (!event.target.closest?.('.brand-logo')) return
       postNative({ type: 'return' })
     })
     el.brandBtn?.addEventListener('keydown', (event) => {

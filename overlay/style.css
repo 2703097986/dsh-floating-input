@@ -105,7 +105,7 @@ svg {
   align-items: center;
   gap: 7px;
   min-width: 0;
-  flex: 1 1 auto;
+  flex: 0 1 auto;
   cursor: pointer;
   user-select: none;
 }
@@ -213,6 +213,7 @@ body.auto-collapsed .collapse-btn .collapse-icon {
   align-items: center;
   gap: 3px;
   flex: 0 0 auto;
+  margin-left: auto;
 }
 
 .resize-edge {
