@@ -394,7 +394,7 @@ body.expand-up.panel-open .resize-edge.right { top: 12px; bottom: 0; }
   min-height: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
-  padding: 6px;
+  padding: 6px 6px 6px 12px;
 }
 
 .workspace-group {
@@ -471,7 +471,7 @@ body.expand-up.panel-open .resize-edge.right { top: 12px; bottom: 0; }
   min-height: 48px;
   display: flex;
   align-items: center;
-  gap: 9px;
+  gap: 7px;
   padding: 7px 9px;
   border: 1px solid transparent;
   border-radius: 9px;
@@ -536,13 +536,27 @@ body.expand-up.panel-open .resize-edge.right { top: 12px; bottom: 0; }
   white-space: nowrap;
 }
 
-.row-unread {
-  width: 7px;
-  height: 7px;
-  flex: 0 0 auto;
+.session-light {
+  width: 6px;
+  height: 6px;
+  flex: 0 0 6px;
   border-radius: 50%;
-  background: var(--danger);
-  box-shadow: 0 0 0 3px rgba(255, 59, 48, 0.1);
+  background: transparent;
+}
+
+.session-light.running {
+  background: #4c9bff;
+  animation: livePulseBlue 1.9s ease-in-out infinite;
+}
+
+.session-light.approval {
+  background: #ff453a;
+  animation: livePulseRed 1.8s ease-in-out infinite;
+}
+
+.session-light.done {
+  background: #32d74b;
+  box-shadow: 0 0 0 2px rgba(50, 215, 75, 0.14), 0 0 4px rgba(50, 215, 75, 0.3);
 }
 
 .empty-list {

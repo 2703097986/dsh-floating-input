@@ -624,6 +624,11 @@
         row.dataset.id = session.id
         row.title = session.title || '未命名对话'
 
+        const light = document.createElement('span')
+        light.className = 'session-light'
+        if (session.approval) light.classList.add('approval')
+        else if (session.running) light.classList.add('running')
+        else if (session.unread) light.classList.add('done')
         const colorSquare = document.createElement('span')
         colorSquare.className = 'session-color-square'
         if (session.color) colorSquare.style.background = session.color
@@ -640,12 +645,7 @@
         metaLine.textContent = meta.filter(Boolean).join(' · ')
         main.append(title, metaLine)
 
-        row.append(colorSquare, main)
-        if (session.unread) {
-          const dot = document.createElement('span')
-          dot.className = 'row-unread'
-          row.append(dot)
-        }
+        row.append(light, colorSquare, main)
         row.addEventListener('click', () => {
           const restoreReply = reopenReplyAfterPick
           reopenReplyAfterPick = false
@@ -1233,11 +1233,21 @@
       handle.addEventListener('pointercancel', end)
     }
 
+    let composing = false
+    let compositionEndedAt = 0
+    el.prompt.addEventListener('compositionstart', () => {
+      composing = true
+    })
+    el.prompt.addEventListener('compositionend', () => {
+      composing = false
+      compositionEndedAt = performance.now()
+    })
     el.prompt.addEventListener('keydown', (event) => {
-      if (event.key === 'Enter' && !event.shiftKey && !event.isComposing) {
-        event.preventDefault()
-        sendMessage()
-      }
+      if (event.key !== 'Enter' || event.shiftKey) return
+      const composingNow = composing || event.isComposing || event.keyCode === 229
+      if (composingNow || performance.now() - compositionEndedAt < 80) return
+      event.preventDefault()
+      sendMessage()
     })
 
     el.sessionBtn.addEventListener('click', openSessionsPanel)
