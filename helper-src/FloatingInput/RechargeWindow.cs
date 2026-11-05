@@ -49,7 +49,7 @@ internal sealed class RechargeWindow : Window
         Content = new Border
         {
             Background = new SolidColorBrush(MediaColor.FromRgb(15, 16, 18)),
-            BorderBrush = new SolidColorBrush(MediaColor.FromRgb(216, 219, 224)),
+            BorderBrush = new SolidColorBrush(MediaColor.FromRgb(56, 60, 66)),
             BorderThickness = new Thickness(1),
             CornerRadius = new CornerRadius(10),
             Padding = new Thickness(1),
