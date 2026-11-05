@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="color-scheme" content="dark">
   <title>DeepSeek Harness 悬浮输入</title>
-  <link rel="stylesheet" href="style.css?v=20261104-61">
+  <link rel="stylesheet" href="style.css?v=20261104-62">
 </head>
 <body>
   <svg class="symbols" aria-hidden="true">
@@ -78,6 +78,7 @@
         <span class="session-color-bar" id="sessionColorBar"></span>
       </button>
       <div class="input-shell">
+        <div class="image-chips" id="imageChips" hidden></div>
         <textarea id="prompt" rows="1" maxlength="32000" placeholder="给 DeepSeek Harness 发消息…" spellcheck="false"></textarea>
       </div>
       <button class="icon-btn reply-toggle" id="replyBtn" type="button" title="展开回复" aria-expanded="false">
@@ -146,6 +147,6 @@
   <div class="resize-corner tl" data-resize="left,top" aria-hidden="true" hidden></div>
   <div class="resize-corner tr" data-resize="right,top" aria-hidden="true" hidden></div>
 
-  <script src="app.js?v=20261104-63"></script>
+  <script src="app.js?v=20261104-64"></script>
 </body>
 </html>

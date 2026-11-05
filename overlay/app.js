@@ -49,6 +49,7 @@
     sessionName: $('#sessionName'),
     sessionColorBar: $('#sessionColorBar'),
     prompt: $('#prompt'),
+    imageChips: $('#imageChips'),
     replyBtn: $('#replyBtn'),
     toast: $('#toast'),
     sessionMenu: $('#sessionMenu'),
@@ -82,6 +83,7 @@
   let completionAudio = null
   let completionSoundAt = 0
   let activityPrimed = false
+  let pendingImages = []
   let settingsOpen = false
   let autoCollapsed = false
   let hostPrefsLoaded = false
@@ -875,9 +877,74 @@
     }
   }
 
+  function renderImageChips() {
+    if (!el.imageChips) return
+    el.imageChips.hidden = pendingImages.length === 0
+    el.imageChips.replaceChildren()
+    pendingImages.forEach((image, index) => {
+      const chip = document.createElement('span')
+      chip.className = 'image-chip'
+      const thumb = document.createElement('img')
+      thumb.src = `data:${image.mediaType};base64,${image.data}`
+      thumb.alt = image.name || '粘贴图片'
+      const remove = document.createElement('button')
+      remove.type = 'button'
+      remove.textContent = '×'
+      remove.title = '移除图片'
+      remove.addEventListener('click', () => {
+        pendingImages.splice(index, 1)
+        renderImageChips()
+      })
+      chip.append(thumb, remove)
+      el.imageChips.appendChild(chip)
+    })
+  }
+
+  function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader()
+      reader.onload = () => {
+        const result = String(reader.result || '')
+        const comma = result.indexOf(',')
+        if (comma < 0) reject(new Error('无法读取图片'))
+        else resolve(result.slice(comma + 1))
+      }
+      reader.onerror = () => reject(reader.error || new Error('无法读取图片'))
+      reader.readAsDataURL(file)
+    })
+  }
+
+  async function addClipboardImages(files) {
+    const supported = new Set(['image/png', 'image/jpeg', 'image/webp', 'image/gif'])
+    for (const file of files) {
+      if (!supported.has(file.type)) {
+        showToast('只支持 PNG / JPEG / WebP / GIF 图片')
+        continue
+      }
+      if (file.size > 12 * 1024 * 1024) {
+        showToast('图片不能超过 12MB')
+        continue
+      }
+      if (pendingImages.length >= 4) {
+        showToast('最多添加 4 张图片')
+        break
+      }
+      try {
+        pendingImages.push({
+          mediaType: file.type,
+          data: await fileToBase64(file),
+          name: file.name || '粘贴图片',
+        })
+      } catch {
+        showToast('图片读取失败')
+      }
+    }
+    renderImageChips()
+  }
+
   async function sendMessage() {
     const text = el.prompt.value.trim()
-    if (!text || sending) return
+    if ((!text && pendingImages.length === 0) || sending) return
     if (authFailed) {
       showToast('连接已失效，请重启 DeepSeek Harness')
       return
@@ -887,11 +954,12 @@
       ? (pendingWorkspaceId || sessions.find((session) => session.id === currentId)?.workspaceId || meta.workspaces?.[0]?.id || null)
       : null
     const suffix = prefs.extraPrompt.trim()
-    const outgoingText = suffix ? `${text}\n\n${suffix}` : text
+    const outgoingText = text ? (suffix ? `${text}\n\n${suffix}` : text) : suffix
+    const outgoingImages = pendingImages.map(({ mediaType, data, name }) => ({ mediaType, data, name }))
     sending = true
 
     const optimistic = snapshot && Array.isArray(snapshot.messages) ? snapshot.messages.slice() : []
-    optimistic.push({ role: 'user', text: outgoingText, seq: 0, time: Date.now() })
+    optimistic.push({ role: 'user', text: outgoingText || '（图片）', seq: 0, time: Date.now() })
     snapshot = {
       ...(snapshot || {}),
       session: snapshot?.session || (currentId ? { id: currentId, title: currentTitle } : null),
@@ -901,7 +969,7 @@
       unread: false,
       error: null,
     }
-    if (!currentId) currentTitle = text.length > 18 ? text.slice(0, 18) + '…' : text
+    if (!currentId) currentTitle = text ? (text.length > 18 ? text.slice(0, 18) + '…' : text) : '图片'
     liveStatus = { phase: 'sending', label: '正在发送…' }
     updateComposer()
     updateComposerStatus()
@@ -916,9 +984,12 @@
         method: 'POST',
         body: {
           text: outgoingText,
+          images: outgoingImages,
           ...(isNew ? { workspaceId } : { sessionId: currentId }),
         },
       })
+      pendingImages = []
+      renderImageChips()
       if (result.sessionId) {
         currentId = result.sessionId
         pendingNew = false
@@ -1259,6 +1330,17 @@
       handle.addEventListener('pointerup', end)
       handle.addEventListener('pointercancel', end)
     }
+
+    el.prompt.addEventListener('paste', (event) => {
+      const items = Array.from(event.clipboardData?.items || [])
+      const files = items
+        .filter((item) => item.kind === 'file' && item.type.startsWith('image/'))
+        .map((item) => item.getAsFile())
+        .filter(Boolean)
+      if (files.length === 0) return
+      event.preventDefault()
+      addClipboardImages(files).catch(() => showToast('图片读取失败'))
+    })
 
     let composing = false
     let compositionEndedAt = 0
