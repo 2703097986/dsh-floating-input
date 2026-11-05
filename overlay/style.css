@@ -971,12 +971,23 @@ body.expand-up.panel-open .resize-edge.right { top: 12px; bottom: 0; }
   width: 30px;
   height: 34px;
   flex: 0 0 auto;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #1a1c1f;
   color: var(--muted);
+  transition: background 0.13s ease, color 0.13s ease, border-color 0.13s ease;
+}
+
+.reply-toggle:hover {
+  background: #24272c;
+  border-color: var(--border-strong);
+  color: var(--text);
 }
 
 .reply-toggle svg { transition: transform 0.16s ease; }
 .reply-toggle.active {
   color: #f0f1f3;
+  border-color: var(--border-strong);
   background: #24272c;
 }
 .reply-toggle.active svg { transform: rotate(180deg); }
