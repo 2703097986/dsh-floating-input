@@ -310,7 +310,6 @@
     return symbol + Number(value).toFixed(2)
   }
 
-  let balanceTitleBase = 'DeepSeek API 余额'
   let pricePeak = null
 
   function inCnHoliday(dateKey) {
@@ -334,9 +333,18 @@
     }
   }
 
-  function applyBalanceTitle() {
-    const period = pricePeak === null ? '' : pricePeak ? ' · 高峰时段' : ' · 空闲时段'
-    el.balanceBtn.title = `${balanceTitleBase}${period} · 点击查看用量`
+  function nextPriceTransition(from = new Date()) {
+    const current = pricePeriod(from)
+    const started = from.getTime()
+    const limit = started + 14 * 24 * 60 * 60 * 1000
+    const step = 5 * 60 * 1000
+    for (let cursor = started + step; cursor <= limit; cursor += step) {
+      if (pricePeriod(new Date(cursor)) === current) continue
+      let edge = cursor
+      while (edge > started && pricePeriod(new Date(edge - 60_000)) !== current) edge -= 60_000
+      return edge
+    }
+    return 0
   }
 
   function updatePricePeriod() {
@@ -345,30 +353,24 @@
     el.balanceTrend?.querySelector('use')?.setAttribute('href', href)
     el.balanceBtn.classList.toggle('price-peak', pricePeak)
     el.balanceBtn.classList.toggle('price-valley', !pricePeak)
-    applyBalanceTitle()
+    const next = nextPriceTransition()
+    const hours = next ? Math.round(((next - Date.now()) / 3_600_000) * 10) / 10 : null
+    el.balanceBtn.title = hours !== null ? `峰谷倒计时 ${Math.max(0.1, hours).toFixed(1)}h` : '峰谷倒计时 —'
   }
 
   function renderBalance() {
     const balance = meta.balance
-    el.balanceBtn.classList.remove('stale', 'empty')
+    el.balanceBtn.classList.remove('stale', 'empty', 'low')
     if (!balance || balance.value === null || balance.value === undefined) {
       el.balanceValue.textContent = '—'
       el.balanceBtn.classList.add('empty')
-      balanceTitleBase = '尚未读取到 DeepSeek API 余额'
       updatePricePeriod()
       return
     }
     el.balanceValue.textContent = formatMoney(balance.value, balance.currency)
     if (balance.stale) el.balanceBtn.classList.add('stale')
-    const source = balance.source === 'api'
-      ? 'API 实时余额'
-      : balance.source === 'account'
-        ? 'DSH 账号实时余额'
-        : '小鲸鱼记账缓存'
-    const today = balance.todayUsage !== null && balance.todayUsage !== undefined
-      ? ` · 今日已用 ¥${Number(balance.todayUsage).toFixed(2)}`
-      : ''
-    balanceTitleBase = `${source}${today}`
+    const amount = Number(balance.value)
+    el.balanceBtn.classList.toggle('low', Number.isFinite(amount) && amount < 10)
     updatePricePeriod()
   }
 

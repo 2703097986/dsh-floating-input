@@ -285,6 +285,7 @@ body.expand-up.panel-open .resize-edge.right { top: 12px; bottom: 0; }
   font-weight: 720;
   letter-spacing: 0.01em;
 }
+.balance.low b { color: #ff5d5d; }
 .balance.stale { background: #17181b; color: var(--muted); }
 .balance.empty { background: #17181b; color: var(--faint); }
 
