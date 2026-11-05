@@ -1252,7 +1252,7 @@
       postNative({ type: 'return' })
     })
     el.balanceBtn.addEventListener('click', () => {
-      postNative({ type: 'open-external', url: 'https://platform.deepseek.com/usage' })
+      postNative({ type: 'open-recharge' })
     })
     el.pinBtn.addEventListener('click', () => {
       const next = el.pinBtn.getAttribute('aria-pressed') !== 'true'

@@ -23,10 +23,10 @@ internal sealed class MainWindow : Window
 {
     private const int HotkeyId = 0x4453;
     private const int HideHotkeyId = 0x4454;
-    private const double CollapsedHeight = 104;
+    private const double CollapsedHeight = 98;
     private const double MinWindowWidth = 560;
     private const double MaxWindowWidth = 1100;
-    private const double MinWindowHeight = 104;
+    private const double MinWindowHeight = 98;
     private const double MinCollapsedHeight = 42;
     private const double MaxWindowHeight = 940;
 
@@ -34,6 +34,7 @@ internal sealed class MainWindow : Window
     private readonly WindowSettings _settings;
     private readonly WebView2 _webView = new();
     private readonly DispatcherTimer _saveTimer;
+    private RechargeWindow? _rechargeWindow;
 
     private readonly DispatcherTimer? _watchdog;
 
@@ -381,6 +382,9 @@ internal sealed class MainWindow : Window
                     break;
                 case "ready":
                     PostHostState();
+                    break;
+                case "open-recharge":
+                    Dispatcher.Invoke(OpenRechargeWindow);
                     break;
                 case "open-external":
                     if (root.TryGetProperty("url", out var url) && url.GetString() is { } external)
@@ -832,6 +836,30 @@ internal sealed class MainWindow : Window
         if (_reallyClosing) return;
         _reallyClosing = true;
         try { Application.Current.Shutdown(); } catch { }
+    }
+
+    private void OpenRechargeWindow()
+    {
+        try
+        {
+            if (_webView.CoreWebView2 is null) return;
+            if (_rechargeWindow is { IsLoaded: true })
+            {
+                _rechargeWindow.Activate();
+                return;
+            }
+            _rechargeWindow = new RechargeWindow(_webView.CoreWebView2.Environment)
+            {
+                Topmost = Topmost,
+            };
+            _rechargeWindow.Closed += (_, _) => _rechargeWindow = null;
+            _rechargeWindow.Show();
+            _rechargeWindow.Activate();
+        }
+        catch (Exception error)
+        {
+            Log("open recharge failed: " + error);
+        }
     }
 
     private void OpenExternal(string url)
