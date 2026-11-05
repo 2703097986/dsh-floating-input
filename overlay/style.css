@@ -12,9 +12,9 @@
   --accent: #e7e9ed;
   --accent-strong: #ffffff;
   --accent-soft: #23262b;
-  --user-bg: #e7e9ed;
-  --user-fg: #111214;
-  --assistant-bg: #1a1c1f;
+  --user-bg: #2b2e33;
+  --user-fg: #f0f1f3;
+  --assistant-bg: transparent;
   --danger: #ff453a;
   --running: #c6cbd2;
   --code-bg: #0b0c0e;
@@ -632,9 +632,11 @@ body.expand-up.panel-open .resize-edge.right { top: 12px; bottom: 0; }
 
 .msg.assistant .bubble {
   color: var(--text);
-  background: var(--assistant-bg);
-  border: 1px solid var(--border);
-  border-bottom-left-radius: 4px;
+  max-width: 100%;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
   white-space: normal;
 }
 
