@@ -1,9 +1,9 @@
 using System;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
-using System.Windows.Shell;
 using Microsoft.Web.WebView2.Core;
 using Microsoft.Web.WebView2.Wpf;
 using MediaColor = System.Windows.Media.Color;
@@ -39,13 +39,8 @@ internal sealed class RechargeWindow : Window
         WindowStartupLocation = WindowStartupLocation.Manual;
         ShowInTaskbar = false;
         Background = new SolidColorBrush(MediaColor.FromRgb(15, 16, 18));
-        WindowChrome.SetWindowChrome(this, new WindowChrome
-        {
-            CaptionHeight = 0,
-            ResizeBorderThickness = new Thickness(0),
-            CornerRadius = new CornerRadius(10),
-            GlassFrameThickness = new Thickness(0),
-        });
+        _webView.DefaultBackgroundColor = System.Drawing.Color.FromArgb(255, 15, 16, 18);
+        _webView.Visibility = Visibility.Hidden;
         Content = new Border
         {
             Background = new SolidColorBrush(MediaColor.FromRgb(15, 16, 18)),
@@ -74,6 +69,23 @@ internal sealed class RechargeWindow : Window
         Top = Math.Clamp(top, workArea.Top + 8, Math.Max(workArea.Top + 8, workArea.Bottom - height - 8));
     }
 
+    protected override void OnSourceInitialized(EventArgs e)
+    {
+        base.OnSourceInitialized(e);
+        try
+        {
+            var hwnd = new System.Windows.Interop.WindowInteropHelper(this).Handle;
+            var preference = 2;
+            DwmSetWindowAttribute(hwnd, 33, ref preference, sizeof(int));
+            var border = 56 | (60 << 8) | (66 << 16);
+            DwmSetWindowAttribute(hwnd, 34, ref border, sizeof(int));
+        }
+        catch { }
+    }
+
+    [DllImport("dwmapi.dll")]
+    private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attribute, ref int value, int size);
+
     private async void OnLoaded(object sender, RoutedEventArgs e)
     {
         if (_ready) return;
@@ -91,7 +103,11 @@ internal sealed class RechargeWindow : Window
                 args.Handled = true;
                 if (Uri.TryCreate(args.Uri, UriKind.Absolute, out var uri)) NavigateOrOpen(uri);
             };
-            core.NavigationCompleted += async (_, _) => await HideScrollbarsAndAddEscapeAsync();
+            core.NavigationCompleted += async (_, args) =>
+            {
+                if (args.IsSuccess) _webView.Visibility = Visibility.Visible;
+                await HideScrollbarsAndAddEscapeAsync();
+            };
             core.WebMessageReceived += (_, args) =>
             {
                 if (args.WebMessageAsJson.Contains("dsh-close-recharge", StringComparison.Ordinal)) Close();
