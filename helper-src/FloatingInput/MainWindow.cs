@@ -361,13 +361,19 @@ internal sealed class MainWindow : Window
                         _freeLeft = Left;
                         _freeTop = Top;
                     }
-                    _dock = nextDock;
-                    if (_dock == "float" && double.IsFinite(_freeLeft) && double.IsFinite(_freeTop))
+                    if (_dock != "float" && nextDock == "float")
                     {
-                        Left = _freeLeft;
-                        Top = _freeTop;
+                        // Entering free mode keeps the window where the user currently sees it.
+                        _freeLeft = Left;
+                        _freeTop = Top;
                     }
-                    Dispatcher.BeginInvoke(new Action(PositionDocked));
+                    _dock = nextDock;
+                    _settings.Dock = nextDock;
+                    Dispatcher.BeginInvoke(new Action(() =>
+                    {
+                        PositionDocked();
+                        ScheduleSave();
+                    }));
                     break;
                 case "hide":
                 case "minimize":
@@ -603,6 +609,7 @@ internal sealed class MainWindow : Window
 
     private void HideWidget()
     {
+        PersistWindow();
         Hide();
     }
 
