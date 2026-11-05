@@ -900,6 +900,16 @@
     })
   }
 
+  function stripExtraPrompt(value) {
+    const text = String(value || '')
+    const suffix = prefs.extraPrompt.trim()
+    if (!suffix) return text
+    if (text === suffix) return '（图片）'
+    if (text.endsWith(`\n\n${suffix}`)) return text.slice(0, -(suffix.length + 2)).trimEnd()
+    if (text.endsWith(suffix)) return text.slice(0, -suffix.length).trimEnd()
+    return text
+  }
+
   function fileToBase64(file) {
     return new Promise((resolve, reject) => {
       const reader = new FileReader()
@@ -959,7 +969,7 @@
     sending = true
 
     const optimistic = snapshot && Array.isArray(snapshot.messages) ? snapshot.messages.slice() : []
-    optimistic.push({ role: 'user', text: outgoingText || '（图片）', seq: 0, time: Date.now() })
+    optimistic.push({ role: 'user', text: text || '（图片）', seq: 0, time: Date.now() })
     snapshot = {
       ...(snapshot || {}),
       session: snapshot?.session || (currentId ? { id: currentId, title: currentTitle } : null),
@@ -1088,6 +1098,7 @@
   }
 
   function addMessage(role, text, options = {}) {
+    if (role === 'user') text = stripExtraPrompt(text)
     const wrap = document.createElement('div')
     wrap.className = 'msg ' + (role === 'error' ? 'error' : role)
     const bubble = document.createElement('div')
