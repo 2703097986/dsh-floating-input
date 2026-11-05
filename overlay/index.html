@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="color-scheme" content="dark">
   <title>DeepSeek Harness 悬浮输入</title>
-  <link rel="stylesheet" href="style.css?v=20261104-51">
+  <link rel="stylesheet" href="style.css?v=20261104-52">
 </head>
 <body>
   <svg class="symbols" aria-hidden="true">
@@ -23,6 +23,12 @@
     <symbol id="i-send" viewBox="0 0 24 24"><path d="M12 19V5m0 0L6.5 10.5M12 5l5.5 5.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M19 8.5V4m0 4.5h-4.5M18.2 15.2A7 7 0 1 1 19 8.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-price-peak" viewBox="0 0 24 24">
+      <path d="M2.5 17.5 7.5 6l4 6 4-8 6 13.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+    <symbol id="i-price-valley" viewBox="0 0 24 24">
+      <path d="M2.5 6.5 7.5 17.5l4-6 4 7 6-12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
     <symbol id="i-settings" viewBox="0 0 24 24">
       <circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1.6"/>
       <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
@@ -37,7 +43,7 @@
       </div>
       <div class="top-actions">
         <button class="balance" id="balanceBtn" type="button" title="DeepSeek API 余额 · 点击查看用量">
-          <span class="balance-label">余额</span><b id="balanceValue">—</b>
+          <svg class="balance-trend" id="balanceTrend"><use href="#i-price-peak"></use></svg><b id="balanceValue">—</b>
         </button>
         <button class="icon-btn pin" id="pinBtn" type="button" title="置顶显示" aria-pressed="true">
           <svg><use href="#i-pin"></use></svg>
@@ -140,6 +146,6 @@
   <div class="resize-corner tl" data-resize="left,top" aria-hidden="true" hidden></div>
   <div class="resize-corner tr" data-resize="right,top" aria-hidden="true" hidden></div>
 
-  <script src="app.js?v=20261104-51"></script>
+  <script src="app.js?v=20261104-52"></script>
 </body>
 </html>

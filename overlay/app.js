@@ -12,6 +12,15 @@
   const STORE_PANEL_HEIGHTS = 'dsh-floating-input:panel-heights'
   const STORE_PREFS = 'dsh-floating-input:prefs'
   const SETTINGS_HEIGHT = 450
+  const CN_HOLIDAYS_2026 = [
+    ['2026-01-01', '2026-01-03'],
+    ['2026-02-15', '2026-02-23'],
+    ['2026-04-04', '2026-04-06'],
+    ['2026-05-01', '2026-05-05'],
+    ['2026-06-19', '2026-06-21'],
+    ['2026-09-25', '2026-09-27'],
+    ['2026-10-01', '2026-10-07'],
+  ]
 
   const $ = (selector) => document.querySelector(selector)
   const el = {
@@ -20,6 +29,7 @@
     liveDots: $('#liveDots'),
     balanceBtn: $('#balanceBtn'),
     balanceValue: $('#balanceValue'),
+    balanceTrend: $('#balanceTrend'),
     pinBtn: $('#pinBtn'),
     settingsBtn: $('#settingsBtn'),
     settingsOverlay: $('#settingsOverlay'),
@@ -298,13 +308,52 @@
     return symbol + Number(value).toFixed(2)
   }
 
+  let balanceTitleBase = 'DeepSeek API 余额'
+  let pricePeak = null
+
+  function inCnHoliday(dateKey) {
+    return CN_HOLIDAYS_2026.some(([start, end]) => dateKey >= start && dateKey <= end)
+  }
+
+  function pricePeriod(date = new Date()) {
+    try {
+      const parts = new Intl.DateTimeFormat('en-US', {
+        timeZone: 'Asia/Shanghai',
+        year: 'numeric', month: '2-digit', day: '2-digit',
+        weekday: 'short', hour: '2-digit', minute: '2-digit', hour12: false,
+      }).formatToParts(date)
+      const get = (type) => parts.find((part) => part.type === type)?.value || ''
+      const dateKey = `${get('year')}-${get('month')}-${get('day')}`
+      if (['Sat', 'Sun'].includes(get('weekday')) || inCnHoliday(dateKey)) return false
+      const minutes = (Number(get('hour')) % 24) * 60 + Number(get('minute'))
+      return (minutes >= 9 * 60 && minutes < 12 * 60) || (minutes >= 14 * 60 && minutes < 18 * 60)
+    } catch {
+      return false
+    }
+  }
+
+  function applyBalanceTitle() {
+    const period = pricePeak === null ? '' : pricePeak ? ' · 高峰时段' : ' · 空闲时段'
+    el.balanceBtn.title = `${balanceTitleBase}${period} · 点击查看用量`
+  }
+
+  function updatePricePeriod() {
+    pricePeak = pricePeriod()
+    const href = pricePeak ? '#i-price-peak' : '#i-price-valley'
+    el.balanceTrend?.querySelector('use')?.setAttribute('href', href)
+    el.balanceBtn.classList.toggle('price-peak', pricePeak)
+    el.balanceBtn.classList.toggle('price-valley', !pricePeak)
+    applyBalanceTitle()
+  }
+
   function renderBalance() {
     const balance = meta.balance
     el.balanceBtn.classList.remove('stale', 'empty')
     if (!balance || balance.value === null || balance.value === undefined) {
       el.balanceValue.textContent = '—'
       el.balanceBtn.classList.add('empty')
-      el.balanceBtn.title = '尚未读取到 DeepSeek API 余额'
+      balanceTitleBase = '尚未读取到 DeepSeek API 余额'
+      updatePricePeriod()
       return
     }
     el.balanceValue.textContent = formatMoney(balance.value, balance.currency)
@@ -317,7 +366,8 @@
     const today = balance.todayUsage !== null && balance.todayUsage !== undefined
       ? ` · 今日已用 ¥${Number(balance.todayUsage).toFixed(2)}`
       : ''
-    el.balanceBtn.title = `${source}${today} · 点击查看用量`
+    balanceTitleBase = `${source}${today}`
+    updatePricePeriod()
   }
 
   function relativeTime(timestamp) {
@@ -1325,6 +1375,8 @@
     applyPrefs()
     updateComposer()
     updateComposerStatus()
+    updatePricePeriod()
+    setInterval(updatePricePeriod, 60_000)
     reportHeight()
     postNative({ type: 'ready' })
     const previewSession = new URLSearchParams(location.search).get('session')
