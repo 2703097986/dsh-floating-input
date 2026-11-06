@@ -564,7 +564,21 @@
     updateUnread()
   }
 
+  function sessionListKey(list) {
+    return JSON.stringify((list || []).map((session) => [
+      session.id,
+      session.title,
+      session.workspaceId,
+      session.color,
+      session.pinned,
+      session.unread,
+      session.running,
+      session.approval,
+    ]))
+  }
+
   async function loadSessions() {
+    const previousKey = sessionListKey(sessions)
     const data = await api('/sessions')
     sessions = Array.isArray(data.sessions) ? data.sessions : []
     meta.lastSessionId = data.lastSessionId || meta.lastSessionId
@@ -584,7 +598,7 @@
       currentWorkspaceId = candidate.workspaceId || null
       pendingNew = false
     }
-    renderSessions()
+    if (panel !== 'sessions' || previousKey !== sessionListKey(sessions)) renderSessions()
     updateComposer()
     if (!currentId && !pendingNew) {
       updateLive(false)
