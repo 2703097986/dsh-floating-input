@@ -180,6 +180,7 @@ body.auto-collapsed .collapse-btn .collapse-icon {
 }
 
 .live-dot {
+  position: relative;
   width: 7px;
   height: 7px;
   flex: 0 0 7px;
@@ -204,6 +205,13 @@ body.auto-collapsed .collapse-btn .collapse-icon {
   background: #32d74b;
   box-shadow: 0 0 0 3px rgba(50, 215, 75, 0.2), 0 0 8px rgba(50, 215, 75, 0.35);
   animation: none;
+}
+
+.live-dot.clickable::after {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
 }
 
 .live-dot.clickable { cursor: pointer; }
