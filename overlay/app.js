@@ -477,6 +477,17 @@
     el.liveDots.title = items.length > 1 ? `${items.length} 个任务` : dots[0]?.title || '空闲'
   }
 
+  function statusDotAt(x, y) {
+    if (!el.liveDots) return null
+    const dots = el.liveDots.querySelectorAll('.live-dot.clickable')
+    for (const dot of dots) {
+      const rect = dot.getBoundingClientRect()
+      if (x >= rect.left - 8 && x <= rect.right + 8 &&
+          y >= rect.top - 8 && y <= rect.bottom + 16) return dot
+    }
+    return null
+  }
+
   function updateLive() {
     renderStatusDots()
   }
@@ -1491,8 +1502,12 @@
       })
     }
     el.brandBtn?.addEventListener('click', (event) => {
-      if (!event.target.closest?.('.brand-logo')) return
-      postNative({ type: 'return' })
+      if (event.target.closest?.('.brand-logo')) {
+        postNative({ type: 'return' })
+        return
+      }
+      const dot = statusDotAt(event.clientX, event.clientY)
+      if (dot) dot.click()
     })
     el.brandBtn?.addEventListener('keydown', (event) => {
       if (event.key !== 'Enter' && event.key !== ' ') return
