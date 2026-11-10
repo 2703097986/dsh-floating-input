@@ -30,6 +30,11 @@ internal static class Program
             Environment.ExitCode = Win32.ActivateExistingWindow() ? 0 : 2;
             return;
         }
+        if (options.Reset)
+        {
+            Environment.ExitCode = Win32.ResetExistingWindow() ? 0 : 2;
+            return;
+        }
 
         if (string.IsNullOrWhiteSpace(options.Url))
         {
@@ -57,7 +62,7 @@ internal static class Program
     }
 }
 
-internal sealed record LaunchOptions(string Url, int ParentPid, bool Show, bool Toggle, int HideMainPid, int MainPid)
+internal sealed record LaunchOptions(string Url, int ParentPid, bool Show, bool Toggle, int HideMainPid, int MainPid, bool Reset)
 {
     public static LaunchOptions Parse(string[] args)
     {
@@ -65,6 +70,7 @@ internal sealed record LaunchOptions(string Url, int ParentPid, bool Show, bool 
         var parentPid = 0;
         var show = false;
         var toggle = false;
+        var reset = false;
         var hideMainPid = 0;
         var mainPid = 0;
         for (var i = 0; i < args.Length; i++)
@@ -83,6 +89,9 @@ internal sealed record LaunchOptions(string Url, int ParentPid, bool Show, bool 
                 case "--toggle":
                     toggle = true;
                     break;
+                case "--reset":
+                    reset = true;
+                    break;
                 case "--hide-main" when i + 1 < args.Length:
                     _ = int.TryParse(args[++i], out hideMainPid);
                     break;
@@ -91,6 +100,6 @@ internal sealed record LaunchOptions(string Url, int ParentPid, bool Show, bool 
                     break;
             }
         }
-        return new LaunchOptions(url, parentPid, show, toggle, hideMainPid, mainPid);
+        return new LaunchOptions(url, parentPid, show, toggle, hideMainPid, mainPid, reset);
     }
 }

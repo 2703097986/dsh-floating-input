@@ -621,6 +621,22 @@ internal sealed class MainWindow : Window
         if (_hwnd != IntPtr.Zero) Win32.ForceForegroundWindow(_hwnd);
     }
 
+    private void ResetToDefaultPosition()
+    {
+        if (_collapsed) ExpandWindow();
+        _dock = "float";
+        _settings.Dock = "float";
+        var area = CurrentWorkArea();
+        Left = area.Left + (area.Width - Width) / 2;
+        Top = area.Bottom - Height - 24;
+        _freeLeft = Left;
+        _freeTop = Top;
+        _expandedTop = Top;
+        _settings.Positioned = true;
+        PersistWindow(true);
+        ShowWidget();
+    }
+
     private void HideWidget()
     {
         PersistWindow();
@@ -770,6 +786,11 @@ internal sealed class MainWindow : Window
         {
             if (IsVisible) Dispatcher.BeginInvoke(new Action(HideWidget), DispatcherPriority.Normal);
             else Dispatcher.BeginInvoke(new Action(ShowWidget), DispatcherPriority.Normal);
+            handled = true;
+        }
+        else if (msg == Win32.WM_DSH_RESET)
+        {
+            Dispatcher.BeginInvoke(new Action(ResetToDefaultPosition), DispatcherPriority.Normal);
             handled = true;
         }
         else if (msg == 0x0006 && (wParam.ToInt32() & 0xFFFF) != 0)

@@ -13,6 +13,7 @@ internal static class Win32
     public const int WM_HOTKEY = 0x0312;
     public const int WM_DSH_SHOW = 0x8001;
     public const int WM_DSH_TOGGLE = 0x8002;
+    public const int WM_DSH_RESET = 0x8003;
     public const int SW_HIDE = 0;
     public const int SW_RESTORE = 9;
     public const int SW_SHOW = 5;
@@ -220,6 +221,13 @@ internal static class Win32
         var handle = FindWindow(null, "DSH Floating Input");
         if (handle == IntPtr.Zero) return false;
         return PostMessage(handle, WM_DSH_TOGGLE, IntPtr.Zero, IntPtr.Zero);
+    }
+
+    public static bool ResetExistingWindow()
+    {
+        var handle = FindWindow(null, "DSH Floating Input");
+        if (handle == IntPtr.Zero) return false;
+        return PostMessage(handle, WM_DSH_RESET, IntPtr.Zero, IntPtr.Zero);
     }
 
     /// <summary>Force a window to the foreground across the Windows foreground lock.</summary>
