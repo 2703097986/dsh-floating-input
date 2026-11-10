@@ -1,7 +1,6 @@
 {
   "name": "dsh-floating-input",
   "version": "0.1.0",
-  "private": true,
   "description": "Always-on-top DeepSeek Harness floating input with session switching, unread dot and API balance.",
   "type": "module",
   "main": "lib/index.js",
