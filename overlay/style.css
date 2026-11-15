@@ -221,46 +221,23 @@ body.auto-collapsed .collapse-btn .collapse-icon {
   align-items: center;
   gap: 2px;
   flex: 0 0 auto;
-  margin-left: 2px;
-}
-
-.top-actions .balance {
-  width: 30px;
-  height: 28px;
-  justify-content: center;
-  gap: 0;
-  padding: 0;
-  margin-right: 0;
-  border-radius: 8px;
-}
-
-.top-actions .balance b { display: none; }
-.top-actions .balance-trend {
-  width: 15px;
-  height: 15px;
-  flex-basis: 15px;
-}
-
-.top-actions .icon-btn {
-  width: 30px;
-  height: 28px;
-  border-radius: 8px;
+  margin-left: auto;
 }
 
 .top-actions .icon-btn svg {
-  width: 15px;
-  height: 15px;
+  width: 14px;
+  height: 14px;
 }
 
-.top-actions .collapse-btn {
+.composer-collapse {
   width: 30px;
   height: 28px;
-  margin-left: 0;
+  margin-left: 2px;
   padding: 0;
   border-radius: 8px;
 }
 
-.top-actions .collapse-icon {
+.composer-collapse .collapse-icon {
   width: 14px;
   height: 14px;
 }
