@@ -5,8 +5,8 @@
   const DEFAULT_PANEL_HEIGHT = { sessions: 330, reply: 430 }
   const MIN_PANEL_HEIGHT = 120
   const MAX_PANEL_HEIGHT = 820
-  const BASE_HEIGHT = 73
-  const AUTO_COLLAPSED_HEIGHT = 34
+  const BASE_HEIGHT = 69
+  const AUTO_COLLAPSED_HEIGHT = 30
   const STORE_SESSION = 'dsh-floating-input:session'
   const STORE_COLLAPSED = 'dsh-floating-input:collapsed-workspaces'
   const STORE_PANEL_HEIGHTS = 'dsh-floating-input:panel-heights'

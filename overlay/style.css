@@ -88,8 +88,8 @@ svg {
 /* ---------------------------------------------------------------- top bar */
 
 .topbar {
-  height: 32px;
-  flex: 0 0 32px;
+  height: 28px;
+  flex: 0 0 28px;
   display: flex;
   align-items: center;
   gap: 10px;
