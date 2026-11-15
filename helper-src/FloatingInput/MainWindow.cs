@@ -24,7 +24,7 @@ internal sealed class MainWindow : Window
     private const int HotkeyId = 0x4453;
     private const int HideHotkeyId = 0x4454;
     private const double CollapsedHeight = 73;
-    private const double MinWindowWidth = 560;
+    private const double MinWindowWidth = 360;
     private const double MaxWindowWidth = 1100;
     private const double MinWindowHeight = 73;
     private const double MinCollapsedHeight = 34;
@@ -61,7 +61,6 @@ internal sealed class MainWindow : Window
     private double _expandedTop = double.NaN;
     private double _resizeStartWidth;
     private double _resizeLeft;
-    private double _resizeRight;
 
     public MainWindow(LaunchOptions options)
     {
@@ -465,16 +464,16 @@ internal sealed class MainWindow : Window
         _resizeEdge = spec.Contains("left", StringComparison.OrdinalIgnoreCase) ? "left" : "right";
         _resizeStartWidth = Width;
         _resizeLeft = Left;
-        _resizeRight = Left + ActualWidth;
     }
 
     private void ApplyResize(double dx)
     {
         if (_reallyClosing || !_resizeHorizontal || _resizeStartWidth <= 0) return;
         var area = CurrentWorkArea();
-        var delta = _resizeEdge == "left" ? -dx : dx;
+        var delta = _resizeEdge == "left" ? -2 * dx : 2 * dx;
         var width = Math.Clamp(_resizeStartWidth + delta, MinWindowWidth, MaxWindowWidth);
-        var left = _resizeEdge == "left" ? _resizeRight - width : _resizeLeft;
+        var center = _resizeLeft + _resizeStartWidth / 2;
+        var left = center - width / 2;
 
         _suppressSave = true;
         try
