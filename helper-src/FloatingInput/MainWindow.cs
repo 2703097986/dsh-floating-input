@@ -23,11 +23,11 @@ internal sealed class MainWindow : Window
 {
     private const int HotkeyId = 0x4453;
     private const int HideHotkeyId = 0x4454;
-    private const double CollapsedHeight = 98;
+    private const double CollapsedHeight = 73;
     private const double MinWindowWidth = 560;
     private const double MaxWindowWidth = 1100;
-    private const double MinWindowHeight = 98;
-    private const double MinCollapsedHeight = 42;
+    private const double MinWindowHeight = 73;
+    private const double MinCollapsedHeight = 34;
     private const double MaxWindowHeight = 940;
 
     private readonly LaunchOptions _options;

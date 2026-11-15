@@ -5,13 +5,13 @@
   const DEFAULT_PANEL_HEIGHT = { sessions: 330, reply: 430 }
   const MIN_PANEL_HEIGHT = 120
   const MAX_PANEL_HEIGHT = 820
-  const BASE_HEIGHT = 98
-  const AUTO_COLLAPSED_HEIGHT = 42
+  const BASE_HEIGHT = 73
+  const AUTO_COLLAPSED_HEIGHT = 34
   const STORE_SESSION = 'dsh-floating-input:session'
   const STORE_COLLAPSED = 'dsh-floating-input:collapsed-workspaces'
   const STORE_PANEL_HEIGHTS = 'dsh-floating-input:panel-heights'
   const STORE_PREFS = 'dsh-floating-input:prefs'
-  const SETTINGS_HEIGHT = 450
+  const SETTINGS_HEIGHT = 510
   const CN_HOLIDAYS_2026 = [
     { start: '2026-01-01', end: '2026-01-03', name: '元旦' },
     { start: '2026-02-15', end: '2026-02-23', name: '春节' },
@@ -88,7 +88,7 @@
   let autoCollapsed = false
   let hostPrefsLoaded = false
   const DEFAULT_PLACEHOLDER = '给 DeepSeek Harness 发消息…'
-  const prefs = { expandUp: false, fontScale: 1, dock: 'float', hotkey: 'Ctrl+Alt+Space', hideHotkey: 'Ctrl+Alt+H', extraPrompt: '' }
+  const prefs = { expandUp: false, fontScale: 1, desktopFontScale: 1, dock: 'float', hotkey: 'Ctrl+Alt+Space', hideHotkey: 'Ctrl+Alt+H', extraPrompt: '' }
   const collapsedWorkspaces = new Set()
   const panelHeights = { ...DEFAULT_PANEL_HEIGHT }
   try {
@@ -102,6 +102,7 @@
     const storedPrefs = JSON.parse(localStorage.getItem(STORE_PREFS) || '{}')
     prefs.expandUp = !!storedPrefs?.expandUp
     prefs.fontScale = Math.min(1.25, Math.max(0.85, Number(storedPrefs?.fontScale) || 1))
+    prefs.desktopFontScale = Math.min(1.6, Math.max(0.8, Number(storedPrefs?.desktopFontScale) || 1))
     prefs.dock = ['center', 'left'].includes(storedPrefs?.dock) ? storedPrefs.dock : 'float'
     prefs.hotkey = typeof storedPrefs?.hotkey === 'string' && storedPrefs.hotkey ? storedPrefs.hotkey : 'Ctrl+Alt+Space'
     prefs.hideHotkey = typeof storedPrefs?.hideHotkey === 'string' && storedPrefs.hideHotkey ? storedPrefs.hideHotkey : 'Ctrl+Alt+H'
@@ -158,6 +159,7 @@
       type: 'prefs',
       expandUp: prefs.expandUp,
       fontScale: prefs.fontScale,
+      desktopFontScale: prefs.desktopFontScale,
       dock: prefs.dock,
       hotkey: prefs.hotkey,
       hideHotkey: prefs.hideHotkey,
@@ -172,6 +174,9 @@
     for (const button of document.querySelectorAll('[data-font]')) {
       button.classList.toggle('active', Number(button.dataset.font) === prefs.fontScale)
     }
+    for (const button of document.querySelectorAll('[data-dfont]')) {
+      button.classList.toggle('active', Number(button.dataset.dfont) === prefs.desktopFontScale)
+    }
     for (const button of document.querySelectorAll('[data-dock]')) {
       button.classList.toggle('active', button.dataset.dock === prefs.dock)
     }
@@ -180,11 +185,18 @@
     if (el.extraPrompt && el.extraPrompt.value !== prefs.extraPrompt) el.extraPrompt.value = prefs.extraPrompt
   }
 
+  // 把"桌面版字号"同步给 DeepSeek Harness 主程序（由它注入的脚本应用整体缩放）
+  function pushDesktopFont() {
+    if (!token) return
+    api('/desktop-font', { method: 'POST', body: { scale: prefs.desktopFontScale } }).catch(() => {})
+  }
+
   function applyPrefs() {
     document.documentElement.style.setProperty('--font-scale', String(prefs.fontScale))
     document.body.classList.toggle('expand-up', prefs.expandUp)
     document.body.classList.toggle('auto-collapsed', autoCollapsed && !settingsOpen)
     savePrefs()
+    pushDesktopFont()
     syncSettingsUI()
     updateResizeHandles()
     postNative({
@@ -1509,6 +1521,12 @@
         applyPrefs()
       })
     }
+    for (const button of document.querySelectorAll('[data-dfont]')) {
+      button.addEventListener('click', () => {
+        prefs.desktopFontScale = Number(button.dataset.dfont) || 1
+        applyPrefs()
+      })
+    }
     for (const button of document.querySelectorAll('[data-dock]')) {
       button.addEventListener('click', () => {
         prefs.dock = button.dataset.dock || 'float'
@@ -1574,6 +1592,7 @@
         if (message.prefs && typeof message.prefs === 'object') {
           prefs.expandUp = !!message.prefs.expandUp
           prefs.fontScale = Math.min(1.25, Math.max(0.85, Number(message.prefs.fontScale) || 1))
+          prefs.desktopFontScale = Math.min(1.6, Math.max(0.8, Number(message.prefs.desktopFontScale) || 1))
           prefs.dock = ['center', 'left'].includes(message.prefs.dock) ? message.prefs.dock : 'float'
           prefs.hotkey = typeof message.prefs.hotkey === 'string' && message.prefs.hotkey ? message.prefs.hotkey : 'Ctrl+Alt+Space'
           prefs.hideHotkey = typeof message.prefs.hideHotkey === 'string' && message.prefs.hideHotkey ? message.prefs.hideHotkey : 'Ctrl+Alt+H'

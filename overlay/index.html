@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="color-scheme" content="dark">
   <title>DeepSeek Harness 悬浮输入</title>
-  <link rel="stylesheet" href="style.css?v=20261104-67">
+  <link rel="stylesheet" href="style.css?v=20261115-1">
 </head>
 <body>
   <svg class="symbols" aria-hidden="true">
@@ -131,6 +131,15 @@
           <button type="button" data-font="1.2">特大</button>
         </div>
       </div>
+      <div class="settings-row">
+        <span class="settings-label">桌面版字号</span>
+        <div class="segmented" id="desktopFontGroup" role="group" aria-label="桌面版字号">
+          <button type="button" data-dfont="1">标准</button>
+          <button type="button" data-dfont="1.1">大</button>
+          <button type="button" data-dfont="1.25">特大</button>
+          <button type="button" data-dfont="1.4">超大</button>
+        </div>
+      </div>
       <label class="settings-field">
         <span class="settings-label">附加提示词</span>
         <textarea id="extraPrompt" rows="4"></textarea>
@@ -147,6 +156,6 @@
   <div class="resize-corner tl" data-resize="left,top" aria-hidden="true" hidden></div>
   <div class="resize-corner tr" data-resize="right,top" aria-hidden="true" hidden></div>
 
-  <script src="app.js?v=20261104-73"></script>
+  <script src="app.js?v=20261115-1"></script>
 </body>
 </html>
