@@ -391,9 +391,11 @@
     const hours = next ? Math.round(((next - Date.now()) / 3_600_000) * 10) / 10 : null
     const holiday = holidayFor(beijingDateKey())?.name || ''
     const prefix = holiday ? `${holiday} ` : ''
+    const amount = Number(meta.balance?.value)
+    const amountText = Number.isFinite(amount) ? formatMoney(amount, meta.balance.currency) : '—'
     el.balanceBtn.title = hours !== null
-      ? `${prefix}峰谷倒计时 ${Math.max(0.1, hours).toFixed(1)}h`
-      : `${prefix}峰谷倒计时 —`
+      ? `API 余额 ${amountText} · ${prefix}峰谷倒计时 ${Math.max(0.1, hours).toFixed(1)}h`
+      : `API 余额 ${amountText} · ${prefix}峰谷倒计时 —`
   }
 
   function renderBalance() {
