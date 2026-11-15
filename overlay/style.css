@@ -125,14 +125,14 @@ svg {
 
 .collapse-btn,
 .return-btn {
-  height: 24px;
+  height: 21px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0;
   flex: 0 0 auto;
-  margin-left: 2px;
-  padding: 0 6px;
+  margin-left: 1px;
+  padding: 0 5px;
   border: 1px solid var(--border);
   border-radius: 6px;
   background: #1a1c1f;
@@ -162,8 +162,8 @@ svg {
 }
 
 .collapse-btn .collapse-icon {
-  width: 16px;
-  height: 16px;
+  width: 13px;
+  height: 13px;
   transition: transform 120ms ease;
 }
 
@@ -219,7 +219,7 @@ body.auto-collapsed .collapse-btn .collapse-icon {
 .top-actions {
   display: flex;
   align-items: center;
-  gap: 3px;
+  gap: 2px;
   flex: 0 0 auto;
   margin-left: auto;
 }
@@ -270,17 +270,17 @@ body.expand-up.panel-open .resize-edge.right { top: 12px; bottom: 0; }
 .resize-corner:hover { background: rgba(255, 255, 255, 0.07); }
 
 .balance {
-  height: 25px;
+  height: 22px;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 0 9px;
-  margin-right: 3px;
+  gap: 3px;
+  padding: 0 7px;
+  margin-right: 2px;
   border: 1px solid var(--border);
   border-radius: 999px;
   background: #1b1d20;
   color: #e8eaed;
-  font-size: calc(11px * var(--font-scale));
+  font-size: calc(10px * var(--font-scale));
   font-weight: 600;
   white-space: nowrap;
   transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
@@ -288,9 +288,9 @@ body.expand-up.panel-open .resize-edge.right { top: 12px; bottom: 0; }
 
 .balance:hover { background: var(--surface-3); border-color: var(--border-strong); }
 .balance-trend {
-  width: 16px;
-  height: 16px;
-  flex: 0 0 16px;
+  width: 13px;
+  height: 13px;
+  flex: 0 0 13px;
   color: #f5f6f7;
 }
 .balance b {
@@ -303,11 +303,11 @@ body.expand-up.panel-open .resize-edge.right { top: 12px; bottom: 0; }
 .balance.empty { background: #17181b; color: var(--faint); }
 
 .icon-btn {
-  width: 27px;
-  height: 27px;
+  width: 22px;
+  height: 22px;
   display: grid;
   place-items: center;
-  border-radius: 7px;
+  border-radius: 6px;
   color: var(--muted);
   transition: background 0.13s ease, color 0.13s ease, transform 0.13s ease;
 }
@@ -318,7 +318,8 @@ body.expand-up.panel-open .resize-edge.right { top: 12px; bottom: 0; }
 }
 
 .icon-btn:active { transform: scale(0.94); }
-.icon-btn.small { width: 25px; height: 25px; }
+.icon-btn.small { width: 20px; height: 20px; }
+.top-actions .icon-btn svg { width: 14px; height: 14px; }
 .icon-btn.pin { color: var(--faint); }
 .icon-btn.pin[aria-pressed="true"] {
   color: var(--accent);
